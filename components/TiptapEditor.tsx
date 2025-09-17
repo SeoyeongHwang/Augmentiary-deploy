@@ -6,7 +6,7 @@ import { AIHighlight } from '../utils/tiptapExtensions'
 import { Button, Heading, Card, Textarea, TextInput } from './index'
 import { ArrowUturnLeftIcon, ArrowUturnRightIcon, ArchiveBoxIcon, DocumentTextIcon, SparklesIcon, BoldIcon, ItalicIcon, CommandLineIcon, LinkIcon, LightBulbIcon, CheckIcon, PlusIcon } from "@heroicons/react/24/outline";
 import CircleIconButton from './CircleIconButton';
-import { Nanum_Myeongjo } from 'next/font/google'
+import { Bitter } from 'next/font/google'
 import { 
   generateRequestId, 
   findAITextElement, 
@@ -23,9 +23,9 @@ import { saveAIPrompt } from '../lib/augmentAgents'
 import Placeholder from '@tiptap/extension-placeholder'
 import { addAIPromptToQueue } from '../utils/aiPromptQueue'
 
-const namum = Nanum_Myeongjo({
+const bitter = Bitter({
     subsets: ['latin'],
-    weight: ['400', '700', '800'],
+    weight: ['400', '700'],
   })
 
 export default function Editor({ 
@@ -558,7 +558,7 @@ export default function Editor({
 
         <div className="relative" onMouseEnter={() => setFontMenuOpen(true)} onMouseLeave={() => setFontMenuOpen(false)}>
           <CircleIconButton aria-label="글자 크기 조절">
-            <span className="font-normal font-sans" style={{ fontSize: '1.25rem' }}>T</span>
+            <span className="font-normal font-serif" style={{ fontSize: '1.25rem' }}>T</span>
           </CircleIconButton>
           {fontMenuOpen && (
             <div className="absolute right-full top-1/2 -translate-y-1/2 flex gap-2 bg-transparent z-10 text-sm px-2 py-1">
@@ -571,7 +571,7 @@ export default function Editor({
                 }}
                   className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white hover:outline hover:outline-offset-2 hover:outline-gray-400"
                 >
-                  <span className="font-normal font-sans" style={{ fontSize: size === 'small' ? '0.75rem' : size === 'normal' ? '1rem' : size === 'large' ? '1.25rem' : '1.5rem' }}>T</span>
+                  <span className="font-normal font-serif" style={{ fontSize: size === 'small' ? '0.75rem' : size === 'normal' ? '1rem' : size === 'large' ? '1.25rem' : '1.5rem' }}>T</span>
                 </CircleIconButton>
               ))}
             </div>
@@ -620,7 +620,7 @@ export default function Editor({
             value={title} 
             onChange={setTitle} 
           />
-          <div className={`tiptap editor-wrapper w-full h-fit p-6 min-h-[60vh] border-none overflow-hidden max-h-none antialiased focus:outline-none transition resize-none placeholder:text-muted ${namum.className} font-sans border-none relative`} style={{marginBottom: '30px' }}>
+          <div className={`tiptap editor-wrapper w-full h-fit p-6 min-h-[60vh] border-none overflow-hidden max-h-none antialiased focus:outline-none transition resize-none placeholder:text-muted ${bitter.className} font-serif border-none relative`} style={{marginBottom: '30px' }}>
             <EditorContent editor={editor} />
             
             {/* BubbleMenu - 공식 React 컴포넌트 사용 */}

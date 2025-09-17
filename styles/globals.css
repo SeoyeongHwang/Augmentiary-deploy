@@ -22,7 +22,7 @@ mark[ai-text="true"]:hover {
 /* 나의 글로벌 스타일 설정 시작 */
 
 body {
-  font-family: 'Nanum Myeongjo', serif;
+  font-family: 'Bitter', serif;
   background-color: #ffffff;
   /* background-color: #f9fafb; 연한 그레이 배경 */
   color: #111827; /* 거의 검은색 텍스트 */
@@ -52,7 +52,7 @@ a:hover {
 }
 
 .ql-editor p {
-  font-family: 'Nanum Myeongjo', serif;
+  font-family: 'Bitter', serif;
   line-height: 2.5; 
   font-weight: 400;
   color: #000000;

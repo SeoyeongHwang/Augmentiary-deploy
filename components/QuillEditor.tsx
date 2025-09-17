@@ -5,7 +5,7 @@ import 'quill/dist/quill.snow.css';
 import { Button, Heading, Card, Textarea, TextInput } from './index'
 import { ArrowUturnLeftIcon, ArrowUturnRightIcon, ArchiveBoxIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import CircleIconButton from './CircleIconButton';
-import { Nanum_Myeongjo } from 'next/font/google'
+import { Bitter } from 'next/font/google'
 import { 
   generateRequestId, 
   findAITextElement, 
@@ -17,9 +17,9 @@ import {
 } from '../utils/editorHelpers'
 import type { AICategory } from '../types/ai'
 
-const namum = Nanum_Myeongjo({
+const bitter = Bitter({
     subsets: ['latin'],
-    weight: ['400', '700', '800'],
+    weight: ['400', '700'],
   })
 
 export default function Editor({ 
@@ -158,7 +158,7 @@ export default function Editor({
             'text-black',
             'caret-stone-900'
           );
-      editor.style.fontFamily = `'Nanum Myeongjo', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Apple SD Gothic Neo", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif'`
+      editor.style.fontFamily = `'Bitter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Apple SD Gothic Neo", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", serif'`
     }
   }, [quillRef])  
 
@@ -252,7 +252,7 @@ export default function Editor({
         
         <div className="relative" onMouseEnter={() => setFontMenuOpen(true)} onMouseLeave={() => setFontMenuOpen(false)}>
           <CircleIconButton aria-label="글자 크기 조절">
-            <span className="font-normal font-sans" style={{ fontSize: '1.25rem' }}>T</span>
+            <span className="font-normal font-serif" style={{ fontSize: '1.25rem' }}>T</span>
           </CircleIconButton>
           {fontMenuOpen && (
             <div className="absolute right-full top-1/2 -translate-y-1/2 flex gap-2 bg-transparent z-10 text-sm px-2 py-1">
@@ -265,7 +265,7 @@ export default function Editor({
                 }}
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                 >
-                  <span className="font-normal font-sans" style={{ fontSize: size === 'small' ? '0.75rem' : size === 'normal' ? '1rem' : size === 'large' ? '1.25rem' : '1.5rem' }}>T</span>
+                  <span className="font-normal font-serif" style={{ fontSize: size === 'small' ? '0.75rem' : size === 'normal' ? '1rem' : size === 'large' ? '1.25rem' : '1.5rem' }}>T</span>
                 </CircleIconButton>
               ))}
             </div>
@@ -292,7 +292,7 @@ export default function Editor({
             value={title} 
             onChange={setTitle} 
           />
-          <div ref={quillRef} className={`editor-wrapper w-full h-fit p-6 min-h-[60vh] border-none overflow-hidden max-h-none antialiased focus:outline-none transition resize-none placeholder:text-muted ${namum.className} font-sans border-none`} style={{marginBottom: '30px' }} />
+          <div ref={quillRef} className={`editor-wrapper w-full h-fit p-6 min-h-[60vh] border-none overflow-hidden max-h-none antialiased focus:outline-none transition resize-none placeholder:text-muted ${bitter.className} font-serif border-none`} style={{marginBottom: '30px' }} />
         </div>
       </div>
       {/* 오른쪽 디스플레이 패널 */}

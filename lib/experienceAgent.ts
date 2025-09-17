@@ -64,8 +64,8 @@ export async function callPastRecordAgent(
     {
       "innerstateSimilarity": <number between 0 and 1>,
       "insightSimilarity": <number between 0 and 1>,
-      "innerstateReason": "<brief explanation in Korean of why inner state is similar or different>",
-      "insightReason": "<brief explanation in Korean of why insights are similar or different>"
+      "innerstateReason": "<brief explanation of why inner state is similar or different>",
+      "insightReason": "<brief explanation of why insights are similar or different>"
     }
     `
 
@@ -190,7 +190,7 @@ export async function callAutobiographicReasoningAgent(
     2. Data from a related past diary entry (inner state summary, insights, or content)
     
     TASK:
-    Create a recalling strategy title that suggests how to recall and relate this past experience to the current text. Write a brief description of why this past experience is relevant to the current text. Be phrased as if written by the user (first-person voice) in fluent Korean.
+    Create a recalling strategy title that suggests how to recall and relate this past experience to the current text. Write a brief description of why this past experience is relevant to the current text. Be phrased as if written by the user (first-person voice).
     
     Current selected text: "${selectedText}"
     
@@ -205,14 +205,14 @@ export async function callAutobiographicReasoningAgent(
     - Strategy should be actionable and specific to the type of connection
     - Description should explain the emotional or situational connection but as a ambiguous hint, not a direct quote.
     - Keep both concise but meaningful
-    - Write in a consistent informal Korean, diary style tone as if speaking to yourself (casual self-suggesting tone without honorifics).
+    - Write in a consistent informal diary style tone as if speaking to yourself (casual self-suggesting tone without honorifics).
     - The text should have an open stance. Avoid overly prescriptive or definitive phrasing. Instead, favor phrases that open up possibilities (could, might, perhaps, ...)
 
     ## Output Format
     Your output must be a JSON object structured as follows:
      {
-       "strategy": "<Korean title with appropriate emoji suggesting how to recall this experience (e.g., '💭 ~해보기', '🌱 ~돌아보기', '🔄 ~인식하기')>",
-       "description": "<Korean description of why this past experience is relevant to current text, 2~3 sentences max>",
+       "strategy": "<title with appropriate emoji suggesting how to recall this experience (e.g., '💭 ~해보기', '🌱 ~돌아보기', '🔄 ~인식하기')>",
+       "description": "<description of why this past experience is relevant to current text, 2~3 sentences max>",
        "entry_id": "${experienceData.id}"
      }
     `
@@ -297,7 +297,7 @@ export async function callPastContextAgent(
     
     TASK:
     1. Create a recalling strategy title that suggests how to connect the current text with the user's past experiences or background
-    2. Write a brief description of why this past context is relevant to the current text. Phrase this as if written by the user (first-person voice) in fluent Korean.
+    2. Write a brief description of why this past context is relevant to the current text. Phrase this as if written by the user (first-person voice).
     
     Current selected text: "${selectedText}"
     
@@ -318,8 +318,8 @@ export async function callPastContextAgent(
     ## Output Format
     Return your output as a JSON object structured exactly as follows:
     {
-      "strategy": "<Korean title with appropriate emoji suggesting how to connect with past background>",
-      "description": "<Korean description of why this past context is relevant to current text, 2~3 sentences max>",
+      "strategy": "<title with appropriate emoji suggesting how to connect with past background>",
+      "description": "<description of why this past context is relevant to current text, 2~3 sentences max>",
       "entry_id": "past_context"
     }
     `
@@ -418,7 +418,7 @@ export async function callPastContextRelevanceAgent(
     Your output must be a JSON object structured as follows:
     {
       "relevance": <number between 0 and 1>,
-      "reason": "<brief explanation in Korean of why they are related or not>"
+      "reason": "<brief explanation of why they are related or not>"
     }
     
     **Similarity Scores:**
@@ -496,7 +496,7 @@ TASK: For the description field, append exactly ONE unfinished phrase that ends 
 
 REQUIREMENTS for the added phrase:
 - Must be clearly **unfinished** and end with "..."
-- Must NOT end with "~다..." (avoid complete Korean sentence endings)
+- Must NOT end with "~다..." (avoid complete sentence endings)
 - Must feel like a natural continuation of the original description
 - Must reflect the same tone, topic, and writing style as experience reflection
 - Must encourage deeper reflection or curiosity about the past experience
@@ -625,7 +625,7 @@ TASK: For the description field, append exactly ONE unfinished phrase that ends 
 
 REQUIREMENTS for the added phrase:
 - Must be clearly **unfinished** and end with "..."
-- Must NOT end with "~다..." (avoid complete Korean sentence endings)
+- Must NOT end with "~다..." (avoid complete sentence endings)
 - Must feel like a natural continuation of the original description
 - Must reflect the same tone, topic, and writing style as past context reflection
 - Must encourage deeper reflection or curiosity about personal background/history

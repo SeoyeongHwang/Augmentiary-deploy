@@ -39,7 +39,7 @@ export function toKST(date: Date): Date {
 export function formatKST(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   const kst = toKST(dateObj)
-  return kst.toLocaleString('ko-KR', {
+  return kst.toLocaleString('en-US', {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
     month: '2-digit',
@@ -55,7 +55,7 @@ export function formatKST(date: Date | string): string {
 export function formatKSTDate(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   const kst = toKST(dateObj)
-  return kst.toLocaleDateString('ko-KR', {
+  return kst.toLocaleDateString('en-US', {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
     month: '2-digit',
@@ -68,7 +68,7 @@ export function formatKSTDate(date: Date | string): string {
  */
 export function formatKSTStored(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  return dateObj.toLocaleString('ko-KR', {
+  return dateObj.toLocaleString('en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -82,7 +82,7 @@ export function formatKSTStored(date: Date | string): string {
  */
 export function formatKSTStoredDate(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  return dateObj.toLocaleDateString('ko-KR', {
+  return dateObj.toLocaleDateString('en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'

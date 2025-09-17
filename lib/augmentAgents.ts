@@ -176,7 +176,7 @@ INPUT:
 - Limit each text to 2~3 sentences. 
 - Text should be thought-provoking and open-ended grounded in the entry's significance.
 - Use an open-ended question or self-suggesting tone with possibility phrases (could, might, perhaps, etc.).
-- Write in a consistent informal Korean, self-talking tone without honorifics (e.g. ends with "~다.").
+- Write in a consistent informal, self-talking tone without honorifics (e.g. ends with "~다.").
 - Avoid explicitly mentioning the approach name or user profile information.
 - Avoid generic sentences, clichés, and excessive commas.
 - Ensure each text connects smoothly from where the <<INSERT HERE>> marker appears.
@@ -350,13 +350,13 @@ export async function callScaffoldingAgent(
     const systemPrompt = `
   You are a writing assistant who helps extend fully written paragraphs by adding a natural, open-ended continuation at the end.
 
-INPUT: You will receive a JSON object containing three options, each with a "text" field containing a complete Korean paragraph.
+INPUT: You will receive a JSON object containing three options, each with a "text" field containing a complete paragraph.
 
 TASK: For each option's text, append exactly ONE unfinished phrase that ends with "..."
 
 REQUIREMENTS for the added phrase:
 - Must be clearly **unfinished** and end with "..."
-- Must NOT end with "~다..." (avoid complete Korean sentence endings)
+- Must NOT end with "~다..." (avoid complete sentence endings)
 - Must feel like a natural continuation of the original paragraph
 - Must reflect the same tone, topic, and writing style
 - Must encourage reflection, curiosity, or expansion

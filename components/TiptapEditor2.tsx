@@ -10,7 +10,7 @@ import { ArrowUturnLeftIcon, ArrowUturnRightIcon, ArchiveBoxIcon, DocumentTextIc
 import { LoaderIcon, ArchiveIcon, SparkleIcon, ExternalLink, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react'
 import CircleIconButton from './CircleIconButton';
 import JournalModal from './JournalModal';
-import { Nanum_Myeongjo } from 'next/font/google'
+import { Bitter } from 'next/font/google'
 import { 
   generateRequestId, 
   findAITextElement, 
@@ -29,9 +29,9 @@ import { saveAIPrompt } from '../lib/augmentAgents'
 import Placeholder from '@tiptap/extension-placeholder'
 import { addAIPromptToQueue } from '../utils/aiPromptQueue'
 
-const namum = Nanum_Myeongjo({
+const bitter = Bitter({
     subsets: ['latin'],
-    weight: ['400', '700', '800'],
+    weight: ['400', '700'],
   })
 
 export default function Editor({ 
@@ -651,7 +651,7 @@ export default function Editor({
       }),
       AIHighlight,
       Placeholder.configure({
-        placeholder: '요즘 마음 속에 머물고 있는 이야기들을 써 보세요',
+        placeholder: 'Write down the thoughts that have been staying with you lately.',
         emptyEditorClass: 'is-editor-empty',
       }),
       createTextEditLogPlugin(),
@@ -1657,11 +1657,11 @@ export default function Editor({
                       <ChevronUp className="w-4 h-4 text-gray-500" />
                     )}
                   </button>
-                  <span className="font-bold text-l text-stone-800">맞닿은 경험 찾기</span>
+                  <span className="font-bold text-l text-stone-800">Dot-Connecting</span>
                 </div>
                 <button
                   type="button"
-                  aria-label="닫기"
+                  aria-label="Close"
                   className={`w-8 h-8 p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-200 rounded-lg transition-colors flex items-center justify-center ${(experienceButtonLoading || bubbleMenuLoading) ? 'pointer-events-none' : ''}`}
                   onClick={() => setExperienceVisible(false)}
                   disabled={experienceButtonLoading || bubbleMenuLoading}
@@ -1673,7 +1673,7 @@ export default function Editor({
               experienceCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
             }`}>
               <div className="text-stone-500 text-sm my-3">
-                어떤 순간과 맞닿아 있는지 살펴보세요.<br/>자신의 마음과 각 내용을 비교해 보고, 마음에 드는 것이 있다면 선택해서 생각을 이어 나갈 수 있습니다.
+                Find experiences that are related to the selected text.Take a moment to see how this experience connects to moments from your past. Compare it with what’s on your mind, and if something resonates, choose it and let your thoughts continue from there.
               </div>
               
               {/* 다시 생성하기 버튼 추가 */}
@@ -1686,7 +1686,7 @@ export default function Editor({
                   >
                     <RefreshCw className={`w-4 h-4 text-stone-500`} />
                     <span className="text-sm font-medium text-stone-900">
-                      다시 생성하기
+                      Regenerate
                     </span>
                   </button>
                 </div>
@@ -1709,7 +1709,7 @@ export default function Editor({
                             ...prev,
                             [cardId]: !prev[cardId]
                           }))}
-                          title={isCardCollapsed ? "펼치기" : "접기"}
+                          title={isCardCollapsed ? "Expand" : "Collapse"}
                         >
                           {isCardCollapsed ? (
                             <ChevronDown className="w-4 h-4 text-gray-500" />
@@ -1753,7 +1753,7 @@ export default function Editor({
                             disabled={experienceButtonLoading || bubbleMenuLoading}
                           >
                             <span className="text-sm font-semibold text-purple-700 truncate">
-                              &lt;{experience.title || '무제'}&gt; 보기
+                              View &lt;{experience.title || '무제'}&gt;
                             </span>
                             <ExternalLink className="w-4 h-4 text-purple-700 ml-2" />
                           </button>
@@ -1768,7 +1768,7 @@ export default function Editor({
                           disabled={experienceButtonLoading || bubbleMenuLoading}
                         >
                           <span className="text-sm font-semibold text-green-700">
-                            이어쓰기
+                            Apply
                           </span>
                           <PlusIcon className="w-4 h-4 text-green-700 ml-2" />
                         </button>
@@ -1793,24 +1793,24 @@ export default function Editor({
           {/* 에디터 툴바 버튼들 */}
           <CircleIconButton 
             onClick={() => editor?.chain().focus().undo().run()} 
-            aria-label="되돌리기" 
+            aria-label="Undo" 
             className={`${loading || bubbleMenuLoading ? 'opacity-60 cursor-not-allowed' : ''} hover:bg-stone-200 hover:border-stone-400 hover:border`}
-            title="되돌리기 (Ctrl+Z)"
+            title="Undo (Ctrl+Z)"
           >
             <ArrowUturnLeftIcon className="h-5 w-5 text-gray-700" />
           </CircleIconButton>
           <CircleIconButton 
             onClick={() => editor?.chain().focus().redo().run()} 
-            aria-label="다시하기" 
+            aria-label="Redo" 
             className={`${loading || bubbleMenuLoading ? 'opacity-60 cursor-not-allowed' : ''} hover:bg-stone-200 hover:border-stone-400 hover:border`}
-            title="다시하기 (Ctrl+Y)"
+            title="Redo (Ctrl+Y)"
           >
             <ArrowUturnRightIcon className="h-5 w-5 text-gray-700" />
           </CircleIconButton>
 
           <div className="relative" onMouseEnter={() => setFontMenuOpen(true)} onMouseLeave={() => setFontMenuOpen(false)}>
-            <CircleIconButton aria-label="글자 크기 조절" title="글자 크기 조절" className="hover:bg-stone-200 hover:border-stone-400 hover:border">
-              <span className="font-normal font-sans" style={{ fontSize: '1.25rem' }}>T</span>
+            <CircleIconButton aria-label="Font Size" title="Font Size" className="hover:bg-stone-200 hover:border-stone-400 hover:border">
+              <span className="font-normal font-serif" style={{ fontSize: '1.25rem' }}>T</span>
             </CircleIconButton>
                                         {fontMenuOpen && (
                 <div className="absolute right-full top-0 pr-2">
@@ -1825,7 +1825,7 @@ export default function Editor({
                         }}
                           className="px-3 py-1.5 hover:bg-stone-100 transition-colors text-sm font-medium text-gray-700 flex items-center gap-2 rounded"
                         >
-                          <span className="font-normal font-sans" style={{ fontSize: size === 'small' ? '0.75rem' : size === 'normal' ? '1rem' : size === 'large' ? '1.25rem' : '1.5rem' }}>T</span>
+                          <span className="font-normal font-serif" style={{ fontSize: size === 'small' ? '0.75rem' : size === 'normal' ? '1rem' : size === 'large' ? '1.25rem' : '1.5rem' }}>T</span>
                           <span className="capitalize">{size}</span>
                         </button>
                       ))}
@@ -1876,11 +1876,11 @@ export default function Editor({
                 <TextInput 
                   type='text' 
                   className='w-full pt-4 text-3xl lg:text-4xl font-extrabold text-center border-none overflow-auto focus:outline-none focus:border-none focus:ring-0 focus:underline focus:underline-offset-4' 
-                  placeholder='제목' 
+                  placeholder='Title' 
                   value={title} 
                   onChange={setTitle} 
                 />
-                <div className={`tiptap editor-wrapper w-full h-fit p-6 min-h-[30vh] max-h-[30vh] lg:min-h-[80vh] lg:max-h-none border-none overflow-y-auto lg:overflow-hidden antialiased focus:outline-none transition resize-none placeholder:text-muted ${namum.className} font-sans border-none relative ${(loading || bubbleMenuLoading || experienceButtonLoading) ? 'opacity-60 cursor-wait' : ''}`} style={{marginBottom: '30px' }}>
+                <div className={`tiptap editor-wrapper w-full h-fit p-6 min-h-[30vh] max-h-[30vh] lg:min-h-[80vh] lg:max-h-none border-none overflow-y-auto lg:overflow-hidden antialiased focus:outline-none transition resize-none placeholder:text-muted ${bitter.className} font-serif border-none relative ${(loading || bubbleMenuLoading || experienceButtonLoading) ? 'opacity-60 cursor-wait' : ''}`} style={{marginBottom: '30px' }}>
                   <EditorContent editor={editor} />   
                   {/* BubbleMenu - 공식 React 컴포넌트 사용 */}
                   {editor && (
@@ -1907,11 +1907,11 @@ export default function Editor({
                         {(experienceButtonLoading || bubbleMenuLoading) ? (
                           <div className="flex items-center justify-center px-6 py-2 text-sm font-bold text-white">
                             <div className="w-4 h-4 border-2 border-amber-300 border-t-stone-400 rounded-full animate-spin mr-2"></div>
-                            생각 중...
+                            Thinking...
                           </div>
                         ) : editor && getSyllableCount(editor.state.doc.textContent) < 150 ? (
                           <div className="flex items-center justify-center px-6 py-2 text-sm font-medium text-amber-200">
-                            충분히 작성한 뒤 다시 시도해주세요 (150자 이상)
+                            Please write more than 150 characters and try again
                           </div>
                         ) : (
                           <>
@@ -1920,20 +1920,20 @@ export default function Editor({
                                 handleExperienceRecall();
                               }}
                               className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-transparent hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 transition-all duration-300 text-base font-bold text-white hover:text-white hover:shadow-lg"
-                              title="맞닿은 경험 찾기"
+                              title="Dot-Connecting"
                             >
                               <LoaderIcon className="w-4 h-4" />
-                              맞닿은 경험 찾기
+                              Dot-Connecting
                             </button>
                             <button
                               onClick={() => {
                                 handleMeaningAugment();
                               }}
                               className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-transparent hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 transition-all duration-300 text-base font-bold text-white hover:text-white hover:shadow-lg"
-                              title="확장하기"
+                              title="Meaning-Making"
                             >
                               <SparkleIcon className="w-4 h-4" />
-                              확장하기
+                              Meaning-Making
                             </button>
                           </>
                         )}
@@ -1945,7 +1945,7 @@ export default function Editor({
             </div>
             {/* 글자수 표시: 흰색 영역 바깥 */}
             <div className="w-full text-center text-md text-gray-500 mt-2 pr-2 select-none">
-              {charCount}자
+              {charCount} characters
             </div>
           </div>
         </div>
@@ -1975,7 +1975,7 @@ export default function Editor({
                   <button 
                     className={`p-2 hover:bg-stone-200 rounded-lg transition-colors flex items-center justify-center ${(bubbleMenuLoading || experienceButtonLoading) ? 'pointer-events-none' : ''}`}
                     onClick={() => setAugmentCollapsed(!augmentCollapsed)}
-                    title={augmentCollapsed ? "펼치기" : "접기"}
+                    title={augmentCollapsed ? "Expand" : "Collapse"}
                     disabled={bubbleMenuLoading || experienceButtonLoading}
                   >
                     {augmentCollapsed ? (
@@ -1984,11 +1984,11 @@ export default function Editor({
                       <ChevronUp className="w-4 h-4 text-gray-500" />
                     )}
                   </button>
-                  <span className="font-bold text-l text-stone-800">확장하기</span>
+                  <span className="font-bold text-l text-stone-800">Meaning-Making</span>
                 </div>
                 <button
                   type="button"
-                  aria-label="닫기"
+                  aria-label="Close"
                   className={`w-8 h-8 p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-200 rounded-lg transition-colors flex items-center justify-center ${(bubbleMenuLoading || experienceButtonLoading) ? 'pointer-events-none' : ''}`}
                   onClick={() => setAugmentVisible(false)}
                   disabled={bubbleMenuLoading || experienceButtonLoading}
@@ -2000,8 +2000,7 @@ export default function Editor({
                 augmentCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
               }`}>
                 <div className="text-stone-500 text-sm my-3">
-                어떤 방향으로 생각해 볼까요?<br/>
-                자신의 마음과 각 내용을 비교해 보고, 마음에 드는 것이 있다면 선택해서 생각을 이어 나갈 수 있습니다.
+                  Which direction would you like to take this thought? Compare it with what's on your mind, and if something resonates, choose it and let your thinking continue from there.
                 </div>
                 
                 {/* 다시 생성하기 버튼 추가 */}
@@ -2014,7 +2013,7 @@ export default function Editor({
                     >
                       <RefreshCw className={`w-4 h-4 text-stone-500`} />
                       <span className="text-sm font-medium text-stone-900">
-                        다시 생성하기
+                        Regenerate
                       </span>
                     </button>
                   </div>
@@ -2080,7 +2079,7 @@ export default function Editor({
                             disabled={experienceButtonLoading || bubbleMenuLoading}
                           >
                             <span className="text-sm font-semibold text-green-700">
-                              이어쓰기
+                              Apply
                             </span>
                             <PlusIcon className="w-4 h-4 text-green-700 ml-2" />
                           </button>

@@ -175,10 +175,10 @@ export default function Home() {
 
   const getGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 6) return '밤이 깊었습니다'
-    if (hour < 12) return '오늘 하루 잘 시작하셨나요?'
-    if (hour < 18) return '안녕하세요'
-    return '오늘 하루는 어떠셨나요?'
+    if (hour < 6) return 'It\'s late at night.'
+    if (hour < 12) return 'Good morning!'
+    if (hour < 18) return 'How was your day?'
+    return 'How was your day?'
   }
 
   // 세션 로딩 중이면 로딩 화면 표시
@@ -186,8 +186,8 @@ export default function Home() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="text-lg text-gray-600">로딩 중...</div>
-          <div className="text-sm text-gray-400 mt-2">세션 확인 중</div>
+          <div className="text-lg text-gray-600">Loading...</div>
+          <div className="text-sm text-gray-400 mt-2">Checking session...</div>
         </div>
       </div>
     )
@@ -198,7 +198,7 @@ export default function Home() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="text-lg text-gray-600">로그인 페이지로 이동 중...</div>
+          <div className="text-lg text-gray-600">Redirecting to login page...</div>
         </div>
       </div>
     )
@@ -228,31 +228,31 @@ export default function Home() {
         {/* 인사말 */}
         <div className="mt-16 mb-8 text-center">
           <h1 className="text-4xl font-bold text-gray-900">
-            <span className="font-bold">{user.name}님</span>, {getGreeting()}.
+            <p className="font-bold">{user.name},</p>{getGreeting()}
           </h1>
         </div>
 
         {/* 작성하러 가기 버튼 */}
-        <div className="mb-16 text-center">
+        <div className="mt-16 mb-16 text-center">
           <Button
             onClick={() => router.push('/write')}
             className="px-8 py-4 text-lg font-semibold"
           >
-            작성하러 가기
+            Start Writing
           </Button>
         </div>
 
         {/* 이전 일기 카드 그리드 */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">이전 일기</h2>
+          <h2 className="text-xl font-regular text-gray-900 mb-6 text-center">Previous Entries</h2>
           
           {entriesLoading ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">불러오는 중...</p>
+              <p className="text-gray-500">Loading...</p>
             </div>
           ) : entries.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">아직 작성된 일기가 없습니다.</p>
+              <p className="text-gray-500">No entries yet.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -276,14 +276,14 @@ export default function Home() {
           {/* 더 로딩 중일 때 표시 */}
           {loadingMore && (
             <div className="text-center py-8">
-              <p className="text-gray-500">더 많은 일기를 불러오는 중...</p>
+              <p className="text-gray-500">Loading more entries...</p>
             </div>
           )}
 
           {/* 모든 일기를 다 불러왔을 때 */}
           {!hasMore && entries.length > 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500">모든 일기를 불러왔습니다.</p>
+              <p className="text-gray-500">All entries loaded.</p>
             </div>
           )}
         </div>
@@ -298,7 +298,7 @@ export default function Home() {
         `}
       >
         <div className="flex items-center justify-between p-4 border-b">
-          <span className="text-lg font-bold">메뉴</span>
+          <span className="text-lg font-bold">Menu</span>
           <button
             className="p-2"
             onClick={() => setSidebarOpen(false)}
@@ -311,7 +311,7 @@ export default function Home() {
             onClick={handleLogout}
             className="w-full"
           >
-            로그아웃
+            Logout
           </Button>
         </nav>
       </aside>

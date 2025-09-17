@@ -539,7 +539,7 @@ export default function Write() {
             disabled={isSubmitting}
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            뒤로가기
+            Back
           </button>
           <h1 className="text-lg font-semibold text-gray-900"> </h1>
           <Button
@@ -547,7 +547,7 @@ export default function Write() {
             className="px-6 py-2 bg-stone-700 text-white hover:bg-stone-800"
             disabled={!entryId || isSubmitting}
           >
-            {isSubmitting ? '저장 중...' : '저장하기'}
+            {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </header>

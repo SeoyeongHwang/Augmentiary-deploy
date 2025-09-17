@@ -24,7 +24,7 @@ export async function callSummaryAgent(
 
     Each summary should be 1–2 sentences long, maintaining the diary writer's perspective and tone.
     Do not distort the facts, and base the summaries strictly on the content provided.
-    If there is no content relevant to a particular category, return an empty string for that category. Response in Korean.
+    If there is no content relevant to a particular category, return an empty string for that category.
 
     Output in JSON format:
     {
