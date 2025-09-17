@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { callSummaryAgent, updateEntrySummary } from '../../lib/summaryAgent'
 
+// Note: 기본 body limit(1MB)로도 충분하나, 필요 시 조정 가능
+
 // 서버 사이드에서 service_role 사용 (타임아웃 제한 없음)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -186,15 +188,31 @@ export default async function handler(
       })
     }
 
-    // 3. 로그 데이터 저장 (있는 경우)
+    // 3. 로그 데이터 저장 (있는 경우) - 청크 단위로 나눠 저장하여 페이로드 초과/시간초과 완화
     if (logsData && logsData.length > 0) {
-      const { error: logsError } = await supabase
-        .from('interaction_logs')
-        .insert(logsData)
-      
-      if (logsError) {
-        console.error('❌ 로그 저장 실패:', logsError)
-        // 로그 저장 실패는 전체 프로세스를 중단하지 않음
+      // 서버 사이드에서 participant_code/entry_id 정규화 (특정 참가자 문제 대응)
+      const normalizedLogs = (logsData as any[]).map((log) => ({
+        ...log,
+        participant_code: typeof log.participant_code === 'string' ? log.participant_code.trim() : log.participant_code,
+        entry_id: log.entry_id || entryData?.id,
+      }))
+
+      const chunkSize = 50
+      for (let i = 0; i < normalizedLogs.length; i += chunkSize) {
+        const chunk = normalizedLogs.slice(i, i + chunkSize)
+        const { error: logsError } = await supabase
+          .from('interaction_logs')
+          .insert(chunk)
+        if (logsError) {
+          console.error('❌ 로그 저장 실패 (chunk):', {
+            index: i / chunkSize,
+            message: (logsError as any)?.message,
+            details: (logsError as any)?.details,
+            hint: (logsError as any)?.hint,
+            firstRow: chunk[0]
+          })
+          // 실패해도 다음 청크 진행
+        }
       }
     }
 

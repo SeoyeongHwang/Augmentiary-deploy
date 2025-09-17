@@ -228,8 +228,7 @@ export default function Editor({
                     changeType: currentText.length > lastLoggedText.length ? 'insert' : 
                                currentText.length < lastLoggedText.length ? 'delete' : 'replace',
                     position: 0,
-                    oldText: lastLoggedText.slice(0, 100),
-                    newText: currentText.slice(0, 100),
+                    // 본문 스냅샷 제거: 길이/카운트만 서버로 전송
                     oldLength: lastLoggedText.length,
                     newLength: currentText.length,
                     wordCountBefore: getWordCount(lastLoggedText),
@@ -424,7 +423,8 @@ export default function Editor({
                   wordCountDiff: wordCountAfter - wordCountBefore,
                   characterCount: characterCountAfter,
                   characterCountDiff: characterCountAfter - characterCountBefore,
-                  currentText: currentText
+                  // 본문 전체는 저장하지 않고 길이/카운트 요약만 전송
+                  currentTextLength: currentText.length
                 }
                 
                 console.log(`📝 [TEXT_EDIT] Logging edit (${reason || 'AppendTransaction-based'}):`, editData)
@@ -475,7 +475,8 @@ export default function Editor({
                   wordCountDiff: wordCountAfter - wordCountBefore,
                   characterCount: characterCountAfter,
                   characterCountDiff: characterCountAfter - characterCountBefore,
-                  currentText: currentText
+                  // 본문 전체는 저장하지 않고 길이/카운트 요약만 전송
+                  currentTextLength: currentText.length
                 }
                 
                 console.log(`🤖 [AI_TEXT_EDIT] Logging AI edit (${reason || 'AppendTransaction-based'}):`, editData)

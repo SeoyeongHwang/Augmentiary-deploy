@@ -223,6 +223,15 @@ export default function Write() {
       }
     }
 
+    // ESM 제출 로그를 API 호출 전에 기록하여 함께 전송되도록 함
+    if (canLog) {
+      try {
+        logESMSubmit(entryId, true)
+      } catch (error) {
+        console.error('ESM 제출 로그 기록 실패(사전)')
+      }
+    }
+
     // 데이터베이스 저장 시도
     try {
       if (!supabase) {
@@ -425,14 +434,7 @@ export default function Write() {
       // ESM 저장 후 잠시 대기 (외래키 제약조건 검증 안정화)
       await new Promise(resolve => setTimeout(resolve, 500))
 
-      // ESM 제출 로그
-      if (canLog) {
-        try {
-          logESMSubmit(entryId, true) // ESM에서 consent 필드가 제거되었으므로 기본값으로 true 설정
-        } catch (error) {
-          console.error('ESM 제출 로그 기록 실패:', error)
-        }
-      }
+      // ESM 제출 로그는 API 호출 전에 포함했으므로 여기서는 중복 기록하지 않음
 
       // 성공 시 처리
       setIsSubmitting(false)
