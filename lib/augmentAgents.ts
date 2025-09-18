@@ -199,21 +199,21 @@ You must provide your response as valid, strictly structured JSON. The output mu
     "resource": ["<String resource category>", ...],
     "resource_usage": "<Brief explanation (string)>",
     "title": "<Emoji + short title (string)>",
-    "text": "<Generated interpretive text (string)>"
+    "text": "<Generated first person interpretive text (string)>"
   },
   "option2": {
     "approach": "<Second approach as provided from the Approaches input (string)>",
     "resource": ["<String resource category>", ...],
     "resource_usage": "<Brief explanation (string)>",
     "title": "<Emoji + short title (string)>",
-    "text": "<Generated interpretive text (string)>"
+    "text": "<Generated first person interpretive text (string)>"
   },
   "option3": {
     "approach": "<Third approach as provided from the Approaches input (string)>",
     "resource": ["<String resource category>", ...],
     "resource_usage": "<Brief explanation (string)>",
     "title": "<Emoji + short title (string)>",
-    "text": "<Generated interpretive text (string)>"
+    "text": "<Generated first person interpretive text (string)>"  
   }
 }
 
@@ -357,7 +357,7 @@ TASK: For each option's text, append exactly ONE unfinished phrase that ends wit
 REQUIREMENTS for the added phrase:
 - Must be clearly **unfinished** and end with "..."
 - Must feel like a natural continuation of the original paragraph
-- Must reflect the same tone, topic, and writing style
+- Must be *first person* and reflect the same tone, topic, and writing style
 - Must encourage reflection, curiosity, or expansion
 - Each of the three phrases must follow different unfinished patterns
 
@@ -374,21 +374,21 @@ Return the exact same JSON structure as input, but with each "text" field contai
     "resource": [keep original resource array],
     "resource_usage": "<keep original resource_usage>", 
     "title": "<keep original title>",
-    "text": "<Original paragraph + your unfinished phrase ending with '...'>"
+    "text": "<Original paragraph + your unfinished first person phrase ending with '...'>"
   },
   "option2": {
     "approach": "<keep original approach>",
     "resource": [keep original resource array],
     "resource_usage": "<keep original resource_usage>",
     "title": "<keep original title>", 
-    "text": "<Original paragraph + your unfinished phrase ending with '...'>"
+    "text": "<Original paragraph + your unfinished first person phrase ending with '...'>"
   },
   "option3": {
     "approach": "<keep original approach>",
     "resource": [keep original resource array],
     "resource_usage": "<keep original resource_usage>",
     "title": "<keep original title>",
-    "text": "<Original paragraph + your unfinished phrase ending with '...'>"
+    "text": "<Original paragraph + your unfinished first person phrase ending with '...'>"
   }
 }
   `;
