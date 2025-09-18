@@ -211,7 +211,7 @@ export async function callAutobiographicReasoningAgent(
     ## Output Format
     Your output must be a JSON object structured as follows:
      {
-       "strategy": "<title with appropriate emoji suggesting how to recall this experience (e.g., '💭 ~해보기', '🌱 ~돌아보기', '🔄 ~인식하기')>",
+       "strategy": "<title with appropriate emoji suggesting how to recall this experience (e.g., '💭 Recalling ~', '🌱 Reflecting ~', '🔄 Recognizing ~')>",
        "description": "<description of why this past experience is relevant to current text, 2~3 sentences max>",
        "entry_id": "${experienceData.id}"
      }
@@ -305,8 +305,8 @@ export async function callPastContextAgent(
     
     **Guidelines:**
     - Strategy should be SPECIFIC and CONCRETE based on the actual past context provided
-    - DO NOT use generic templates like "~연결하기", "~돌아보기" without context
-    - Instead, create titles that reference specific aspects of the user's past (e.g., "🌱 어린 시절의 독립성 떠올려보기", "💭 학창시절의 성취감 기억하기", "🔄 과거의 성향과 현재 연결하기")
+    - DO NOT use generic templates like "Recalling ~", "Reflecting ~", "Recognizing ~" without context
+    - Instead, create titles that reference specific aspects of the user's past (e.g., "🌱 Remembering my childhood independence", "💭 Remembering my achievements from school", "🔄 Connecting past tendencies with the present")
     - Choose emojis that match the thematic context (🌱💭🔄💫🎯🪞✨🌅📝💪🤝😌🔍)
     - Description should explain how the user's specific past experiences or personality traits relate to the current situation
     - Keep both concise but meaningful
@@ -510,7 +510,7 @@ Return the exact same JSON structure as input, but with the description field co
 
 {
   "strategy": "<keep original strategy>",
-  "description": "<Original description + your unfinished phrase ending with '...'>",
+  "description": "<Original description + unfinished first person phrase ending with '...'>",
   "entry_id": "<keep original entry_id>"
 }
     `;
@@ -638,7 +638,7 @@ Return the exact same JSON structure as input, but with the description field co
 
 {
   "strategy": "<keep original strategy>",
-  "description": "<Original description + your unfinished phrase ending with '...'>",
+  "description": "<Original description + unfinished first person phrase ending with '...'>",
   "entry_id": "<keep original entry_id>"
 }
     `;
