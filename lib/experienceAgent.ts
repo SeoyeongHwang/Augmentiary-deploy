@@ -132,10 +132,10 @@ export async function callPastRecordAgent(
       // 분석 이유 배열 생성
       const analysisReasons: string[] = []
       if (sumInnerstate && parsedResult.innerstateReason) {
-        analysisReasons.push(`내면상태: ${parsedResult.innerstateReason}`)
+        analysisReasons.push(`innerstate: ${parsedResult.innerstateReason}`)
       }
       if (sumInsight && parsedResult.insightReason) {
-        analysisReasons.push(`깨달음: ${parsedResult.insightReason}`)
+        analysisReasons.push(`insight: ${parsedResult.insightReason}`)
       }
       
       return {
@@ -247,8 +247,8 @@ export async function callAutobiographicReasoningAgent(
       if (jsonStart === -1 || jsonEnd === -1) {
         console.error('경험 설명 에이전트 JSON 브래킷을 찾을 수 없음')
         return { 
-          strategy: '과거 경험 떠올려보기', 
-          description: '관련된 과거 경험이 있습니다.', 
+          strategy: 'recall past experience', 
+          description: 'related past experience', 
           entry_id: experienceData.id 
         }
       }
@@ -257,8 +257,8 @@ export async function callAutobiographicReasoningAgent(
       const parsedResult = JSON.parse(jsonString)
       
       const descriptionResult = {
-        strategy: parsedResult.strategy || '과거 경험 떠올려보기',
-        description: parsedResult.description || '관련된 과거 경험이 있습니다.',
+        strategy: parsedResult.strategy || 'recall past experience',
+        description: parsedResult.description || 'related past experience',
         entry_id: experienceData.id
       }
       
@@ -267,16 +267,16 @@ export async function callAutobiographicReasoningAgent(
       console.error('경험 설명 에이전트 JSON 파싱 오류:', err)
       console.error('원본 응답:', textResult)
       return { 
-        strategy: '과거 경험 떠올려보기', 
-        description: '관련된 과거 경험이 있습니다.', 
+        strategy: 'recall past experience', 
+        description: 'related past experience', 
         entry_id: experienceData.id 
       }
     }
   } catch (error) {
     console.error('경험 설명 에이전트 API 호출 오류:', error)
     return { 
-      strategy: '과거 경험 떠올려보기', 
-      description: '관련된 과거 경험이 있습니다.', 
+      strategy: 'recall past experience', 
+      description: 'related past experience', 
       entry_id: experienceData.id 
     }
   }
@@ -354,8 +354,8 @@ export async function callPastContextAgent(
       if (jsonStart === -1 || jsonEnd === -1) {
         console.error('과거 맥락 에이전트 JSON 브래킷을 찾을 수 없음')
         return { 
-          strategy: '과거 배경 떠올려보기', 
-          description: '내 과거 경험이 지금과 연결되어 있을 수 있어요.', 
+          strategy: 'recall past context', 
+          description: 'related past context', 
           entry_id: 'past_context' 
         }
       }
@@ -364,8 +364,8 @@ export async function callPastContextAgent(
       const parsedResult = JSON.parse(jsonString)
       
       const descriptionResult = {
-        strategy: parsedResult.strategy || '과거 배경 떠올려보기',
-        description: parsedResult.description || '내 과거 경험이 지금과 연결되어 있을 수 있어요.',
+        strategy: parsedResult.strategy || 'recall past context',
+        description: parsedResult.description || 'related past context',
         entry_id: 'past_context'
       }
       
@@ -374,16 +374,16 @@ export async function callPastContextAgent(
       console.error('과거 맥락 에이전트 JSON 파싱 오류:', err)
       console.error('원본 응답:', textResult)
       return { 
-        strategy: '과거 배경 떠올려보기', 
-        description: '내 과거 경험이 지금과 연결되어 있을 수 있어요.', 
+        strategy: 'recall past context', 
+        description: 'related past context', 
         entry_id: 'past_context' 
       }
     }
   } catch (error) {
     console.error('과거 맥락 에이전트 API 호출 오류:', error)
     return { 
-      strategy: '과거 배경 떠올려보기', 
-      description: '내 과거 경험이 지금과 연결되어 있을 수 있어요.', 
+      strategy: 'recall past context', 
+      description: 'related past context', 
       entry_id: 'past_context' 
     }
   }
@@ -466,7 +466,7 @@ export async function callPastContextRelevanceAgent(
       
       const analysisResult = {
         relevance: Math.min(1, Math.max(0, parseFloat(parsedResult.relevance) || 0)),
-        reason: parsedResult.reason || '분석 결과 없음'
+        reason: parsedResult.reason || 'no analysis result'
       }
       
       return analysisResult
@@ -496,15 +496,14 @@ TASK: For the description field, append exactly ONE unfinished phrase that ends 
 
 REQUIREMENTS for the added phrase:
 - Must be clearly **unfinished** and end with "..."
-- Must NOT end with "~다..." (avoid complete sentence endings)
 - Must feel like a natural continuation of the original description
 - Must reflect the same tone, topic, and writing style as experience reflection
 - Must encourage deeper reflection or curiosity about the past experience
 - Should maintain the introspective, diary-like tone
 
 EXAMPLE:
-Input description: "그때도 비슷한 혼란을 겪었던 것 같아. 그 상황에서 어떻게 해결했는지 떠올려보면 지금에도 도움이 될 거야."
-Output description: "그때도 비슷한 혼란을 겪었던 것 같아. 그 상황에서 어떻게 해결했는지 떠올려보면 지금에도 도움이 될 거야. 그때 내가 어떤 마음으로..."
+Input description: "I think I went through a similar kind of confusion back then too. If I recall how I handled it in that situation, it could help me now as well."
+Output description: "I think I went through a similar kind of confusion back then too. If I recall how I handled it in that situation, it could help me now as well. I wonder how I..."
 
 ## Output Format
 Return the exact same JSON structure as input, but with the description field containing the original text plus your added unfinished phrase:
@@ -625,15 +624,14 @@ TASK: For the description field, append exactly ONE unfinished phrase that ends 
 
 REQUIREMENTS for the added phrase:
 - Must be clearly **unfinished** and end with "..."
-- Must NOT end with "~다..." (avoid complete sentence endings)
 - Must feel like a natural continuation of the original description
 - Must reflect the same tone, topic, and writing style as past context reflection
 - Must encourage deeper reflection or curiosity about personal background/history
 - Should maintain the introspective, diary-like tone about personal past
 
 EXAMPLE:
-Input description: "내 성격상 새로운 환경에서는 항상 이런 불안감을 느꼈던 것 같아. 과거의 경험들이 지금 이 상황과 어떻게 연결되는지 생각해보면 도움이 될 거야."
-Output description: "내 성격상 새로운 환경에서는 항상 이런 불안감을 느꼈던 것 같아. 과거의 경험들이 지금 이 상황과 어떻게 연결되는지 생각해보면 도움이 될 거야. 어쩌면 그때의 나와 지금의 나가..."
+Input description: "Given my personality, I think I've always felt this kind of anxiety in new environments. If I think about how my past experiences connect to this situation now, it'll be helpful."
+Output description: "Given my personality, I think I've always felt this kind of anxiety in new environments. If I think about how my past experiences connect to this situation now, it'll be helpful. Maybe the "me" back then and the "me" now..."
 
 ## Output Format
 Return the exact same JSON structure as input, but with the description field containing the original text plus your added unfinished phrase:
