@@ -296,8 +296,8 @@ export default function SurveyPage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="text-lg text-gray-600">로딩 중...</div>
-          <div className="text-sm text-gray-400 mt-2">세션 확인 중</div>
+          <div className="text-lg text-gray-600">Loading...</div>
+          <div className="text-sm text-gray-400 mt-2">Checking session...</div>
         </div>
       </div>
     )
@@ -308,7 +308,7 @@ export default function SurveyPage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="text-lg text-gray-600">로그인 페이지로 이동 중...</div>
+          <div className="text-lg text-gray-600">Moving to login page...</div>
         </div>
       </div>
     )

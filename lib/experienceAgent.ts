@@ -305,8 +305,7 @@ export async function callPastContextAgent(
     
     **Guidelines:**
     - Strategy should be SPECIFIC and CONCRETE based on the actual past context provided
-    - DO NOT use generic templates like "Recalling ...", "Reflecting ...", "Recognizing ..." without context
-    - Instead, create titles that reference specific aspects of the user's past (e.g., "🌱 Remembering my childhood independence", "💭 Remembering my achievements from school", "🔄 Connecting past tendencies with the present")
+    - Create titles that reference specific aspects of the user's past (e.g., "🌱 Remembering my childhood independence", "💭 Remembering my achievements from school", "🔄 Connecting past tendencies with the present")
     - Choose emojis that match the thematic context (🌱💭🔄💫🎯🪞✨🌅📝💪🤝😌🔍)
     - Description should explain how the user's specific past experiences or personality traits relate to the current situation
     - Keep both concise but meaningful
@@ -495,7 +494,7 @@ INPUT: You will receive a JSON object containing an experience description with 
 TASK: For the description field, append exactly ONE unfinished phrase that ends with "..."
 
 REQUIREMENTS for the added phrase:
-- Must be clearly **unfinished** and end with "..."
+- Must be **incomplete** and end with "..."
 - Must feel like a natural continuation of the original description
 - Must reflect the same tone, topic, and writing style as experience reflection
 - Must encourage deeper reflection or curiosity about the past experience
@@ -623,7 +622,7 @@ INPUT: You will receive a JSON object containing a past context description with
 TASK: For the description field, append exactly ONE unfinished phrase that ends with "..."
 
 REQUIREMENTS for the added phrase:
-- Must be clearly **unfinished** and end with "..."
+- Must be **incomplete** and end with "..."
 - Must feel like a natural continuation of the original description
 - Must reflect the same tone, topic, and writing style as past context reflection
 - Must encourage deeper reflection or curiosity about personal background/history
@@ -631,7 +630,7 @@ REQUIREMENTS for the added phrase:
 
 EXAMPLE:
 Input description: "Given my personality, I think I've always felt this kind of anxiety in new environments. If I think about how my past experiences connect to this situation now, it'll be helpful."
-Output description: "Given my personality, I think I've always felt this kind of anxiety in new environments. If I think about how my past experiences connect to this situation now, it'll be helpful. Maybe the "me" back then and the "me" now..."
+Output description: "Given my personality, I think I've always felt this kind of anxiety in new environments. If I think about how my past experiences connect to this situation now, it'll be helpful. Maybe the "me" back then..."
 
 ## Output Format
 Return the exact same JSON structure as input, but with the description field containing the original text plus your added unfinished phrase:

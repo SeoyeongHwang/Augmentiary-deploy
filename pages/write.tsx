@@ -502,9 +502,9 @@ export default function Write() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="text-lg text-gray-600">로딩 중...</div>
+          <div className="text-lg text-gray-600">Loading...</div>
           <div className="text-sm text-gray-400 mt-2">
-            {loading ? '사용자 세션 확인 중' : !user ? '사용자 정보 확인 중' : '글쓰기 준비 중'}
+            {loading ? 'Checking session...' : !user ? 'Checking user information...' : 'Preparing to write...'}
           </div>
         </div>
       </div>
@@ -520,10 +520,10 @@ export default function Write() {
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-600"></div>
             <div className="text-center">
               <p className="text-sm text-amber-800 font-medium">
-                일기를 저장하고 있습니다...
+                Saving diary...
               </p>
               <p className="text-xs text-amber-700">
-                완료될 때까지 창을 닫지 말아주세요!
+                Please do not close the window until it is completed.
               </p>
             </div>
           </div>
@@ -577,10 +577,10 @@ export default function Write() {
         isOpen={showConfirmModal && !isSubmitting}
         onConfirm={handleConfirmBack}
         onCancel={handleCancelBack}
-        title="메인 화면으로 나가기"
-        message="저장되지 않은 정보는 사라집니다. 나가시겠습니까?"
-        confirmText="나가기"
-        cancelText="취소"
+        title="Go to main screen"
+        message="Unsaved information will be lost. Do you want to leave?"
+        confirmText="Leave"
+        cancelText="Cancel"
       />
     </div>
   )
