@@ -510,7 +510,7 @@ Return the exact same JSON structure as input, but with the description field co
 
 {
   "strategy": "<keep original strategy>",
-  "description": "<Original description + unfinished first person phrase ending with '...'>",
+  "description": "<Original description + incomplete first person phrase ending with '...'>",
   "entry_id": "<keep original entry_id>"
 }
     `;
@@ -638,7 +638,7 @@ Return the exact same JSON structure as input, but with the description field co
 
 {
   "strategy": "<keep original strategy>",
-  "description": "<Original description + unfinished first person phrase ending with '...'>",
+  "description": "<Original description + incomplete first person phrase ending with '...'>",
   "entry_id": "<keep original entry_id>"
 }
     `;

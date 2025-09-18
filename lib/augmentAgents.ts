@@ -374,21 +374,21 @@ Return the exact same JSON structure as input, but with each "text" field contai
     "resource": [keep original resource array],
     "resource_usage": "<keep original resource_usage>", 
     "title": "<keep original title>",
-    "text": "<Original paragraph + your unfinished first person phrase ending with '...'>"
+    "text": "<Original paragraph + incomplete first person phrase ending with '...'>"
   },
   "option2": {
     "approach": "<keep original approach>",
     "resource": [keep original resource array],
     "resource_usage": "<keep original resource_usage>",
     "title": "<keep original title>", 
-    "text": "<Original paragraph + your unfinished first person phrase ending with '...'>"
+    "text": "<Original paragraph + incomplete first person phrase ending with '...'>"
   },
   "option3": {
     "approach": "<keep original approach>",
     "resource": [keep original resource array],
     "resource_usage": "<keep original resource_usage>",
     "title": "<keep original title>",
-    "text": "<Original paragraph + your unfinished first person phrase ending with '...'>"
+    "text": "<Original paragraph + incomplete first person phrase ending with '...'>"
   }
 }
   `;
