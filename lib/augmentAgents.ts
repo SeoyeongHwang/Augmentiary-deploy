@@ -176,7 +176,7 @@ INPUT:
 - Limit each text to 2~3 sentences. 
 - Text should be thought-provoking and open-ended grounded in the entry's significance.
 - Use an open-ended question or self-suggesting tone with possibility phrases (could, might, perhaps, etc.).
-- Write in a consistent informal, self-talking tone without honorifics (e.g. ends with "~다.").
+- Write in a consistent informal, self-talking tone without honorifics.
 - Avoid explicitly mentioning the approach name or user profile information.
 - Avoid generic sentences, clichés, and excessive commas.
 - Ensure each text connects smoothly from where the <<INSERT HERE>> marker appears.
@@ -187,7 +187,7 @@ INPUT:
 - High significance (4-5): Allow for introspective or emotionally resonant insights.
 
 **Title Requirements:**
-- Each option should have a short, unique title reflecting a specific aspect of the text, such as "~하기", "~보기".
+- Each option should have a short, unique title reflecting a specific aspect of the text.
 - Precede each title with a matching thematic emoji (e.g., 🌱💭🔄💫🏆🪞✨🌅📝💪🤝😌🔍).
 
 ## Output Format
@@ -356,15 +356,14 @@ TASK: For each option's text, append exactly ONE unfinished phrase that ends wit
 
 REQUIREMENTS for the added phrase:
 - Must be clearly **unfinished** and end with "..."
-- Must NOT end with "~다..." (avoid complete sentence endings)
 - Must feel like a natural continuation of the original paragraph
 - Must reflect the same tone, topic, and writing style
 - Must encourage reflection, curiosity, or expansion
 - Each of the three phrases must follow different unfinished patterns
 
 EXAMPLE:
-Input text: "디자인과 기술 분야에서의 선택이 나의 미래에 어떤 의미를 가질지 탐색하는 것이 중요하겠다는 생각이 든다."
-Output text: "디자인과 기술 분야에서의 선택이 나의 미래에 어떤 의미를 가질지 탐색하는 것이 중요하겠다는 생각이 든다. 어쩌면..."
+Input text: "I feel it's important to explore what my choices in design and technology might mean for my future."
+Output text: "I feel it's important to explore what my choices in design and technology might mean for my future. Maybe..."
 
 ## Output Format
 Return the exact same JSON structure as input, but with each "text" field containing the original paragraph plus your added unfinished sentence:
