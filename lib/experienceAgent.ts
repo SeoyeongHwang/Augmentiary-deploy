@@ -305,7 +305,7 @@ export async function callPastContextAgent(
     
     **Guidelines:**
     - Strategy should be SPECIFIC and CONCRETE based on the actual past context provided
-    - DO NOT use generic templates like "Recalling ~", "Reflecting ~", "Recognizing ~" without context
+    - DO NOT use generic templates like "Recalling ...", "Reflecting ...", "Recognizing ..." without context
     - Instead, create titles that reference specific aspects of the user's past (e.g., "🌱 Remembering my childhood independence", "💭 Remembering my achievements from school", "🔄 Connecting past tendencies with the present")
     - Choose emojis that match the thematic context (🌱💭🔄💫🎯🪞✨🌅📝💪🤝😌🔍)
     - Description should explain how the user's specific past experiences or personality traits relate to the current situation

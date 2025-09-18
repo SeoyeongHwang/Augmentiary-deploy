@@ -62,7 +62,7 @@ export default function JournalModal({ isOpen, onClose, title, content, createdA
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-gray-500 text-sm">일기를 불러오는 중...</p>
+                  <p className="text-gray-500 text-sm">Loading the entry...</p>
                 </div>
               </div>
             ) : (
