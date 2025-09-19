@@ -212,7 +212,7 @@ export async function callAutobiographicReasoningAgent(
     Your output must be a JSON object structured as follows:
      {
        "strategy": "<title with appropriate emoji suggesting how to recall this experience (e.g., '💭 Recalling ~', '🌱 Reflecting ~', '🔄 Recognizing ~')>",
-       "description": "<description of why this past experience is relevant to current text, 2~3 sentences max>",
+       "description": "<description of why this past experience is relevant to current text, 1~2 sentences max>",
        "entry_id": "${experienceData.id}"
      }
     `
@@ -318,7 +318,7 @@ export async function callPastContextAgent(
     Return your output as a JSON object structured exactly as follows:
     {
       "strategy": "<title with appropriate emoji suggesting how to connect with past background>",
-      "description": "<description of why this past context is relevant to current text, 2~3 sentences max>",
+      "description": "<description of why this past context is relevant to current text, 1~2 sentences max>",
       "entry_id": "past_context"
     }
     `

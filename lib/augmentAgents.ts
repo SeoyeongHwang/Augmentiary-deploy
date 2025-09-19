@@ -81,7 +81,7 @@ Your output must be a JSON object structured as follows:
 
 - The field 'significance' uses a numeric string between 1 (low) and 5 (high); use your judgment based on the depth, complexity, or emotional richness of the diary passage.
 - If the selected diary entry is blank or clearly irrelevant, set 'reflective_summary' to "No relevant content provided." and return an empty array for 'approaches' and the lowest significance rating.
-- The 'reflective_summary' should be a single well-formed English sentence or a brief paragraph, 1-3 sentences in length.   
+- The 'reflective_summary' should be a single well-formed English sentence or a brief paragraph, 1-2 sentences in length.   
   `
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -173,7 +173,7 @@ INPUT:
 
 **Text Generation Guidelines:**
 - The text for each option must differ from the others and follow the guidelines for the specified approach.
-- Limit each text to 2~3 sentences. 
+- Limit each text to 1~2 sentences. 
 - Text should be thought-provoking and open-ended grounded in the entry's significance.
 - Use an open-ended question or self-suggesting tone with possibility phrases (could, might, perhaps, etc.).
 - Write in a consistent informal, self-talking tone without honorifics.
