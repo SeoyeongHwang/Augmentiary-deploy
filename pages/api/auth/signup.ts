@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import { 
   withErrorHandler, 
   checkMethod, 
@@ -11,24 +10,10 @@ import {
   sendSuccessResponse,
   sendErrorResponse
 } from '../../../lib/apiErrorHandler'
-
-// 서버 사이드에서 service_role 사용
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
-
-// 클라이언트용 supabase (인증용)
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import {
+  createAdminSupabaseClient,
+  createServerSupabaseClient,
+} from '../../../utils/supabase/server'
 
 async function signupHandler(
   req: NextApiRequest,
@@ -108,6 +93,7 @@ async function signupHandler(
   console.log('📝 회원가입 시도:', email, `[${requestId}]`)
 
   // 3. 이메일 중복 검사 (service_role로 직접 확인)
+  const supabase = createAdminSupabaseClient()
   const { data: existingUser, error: checkError } = await supabase
     .from('users')
     .select('id')
@@ -142,6 +128,7 @@ async function signupHandler(
   }
 
   // 4. Supabase 인증 계정 생성
+  const supabaseAuth = createServerSupabaseClient(req, res)
   const { data: authData, error: authError } = await supabaseAuth.auth.signUp({
     email,
     password,
@@ -268,12 +255,13 @@ async function signupHandler(
     message: '회원가입이 완료되었습니다.'
   }
 
-  // 즉시 로그인 가능한 경우 세션 포함
+  // 즉시 로그인 가능한 경우 쿠키 세션이 설정됨
   if (authData.session) {
-    responseData.session = authData.session
+    responseData.authenticated = true
     responseData.message = '회원가입 및 로그인이 완료되었습니다.'
     console.log('🔐 즉시 로그인 가능', `[${requestId}]`)
   } else {
+    responseData.authenticated = false
     responseData.message = '회원가입이 완료되었습니다. 이메일 인증 후 로그인해주세요.'
     console.log('📧 이메일 인증 필요', `[${requestId}]`)
   }
@@ -281,4 +269,4 @@ async function signupHandler(
   sendSuccessResponse(res, responseData, responseData.message, 201)
 }
 
-export default withErrorHandler(signupHandler) 
+export default withErrorHandler(signupHandler)

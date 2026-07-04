@@ -176,23 +176,12 @@ export default function SurveyPage() {
     setIsSubmitting(true)
 
     try {
-      // localStorage에서 세션 정보 가져오기
-      const sessionData = localStorage.getItem('supabase_session')
-      if (!sessionData) {
-        throw new Error('세션 정보가 없습니다. 다시 로그인해주세요.')
-      }
-
-      const session = JSON.parse(sessionData)
-      if (!session.access_token) {
-        throw new Error('액세스 토큰이 없습니다. 다시 로그인해주세요.')
-      }
-
       // 설문 결과를 서버로 전송하여 OpenAI API를 통해 profile 생성
       const response = await fetch('/api/survey/generate-profile', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(surveyData)
       })
@@ -573,4 +562,4 @@ export default function SurveyPage() {
       </div>
     </div>
   )
-} 
+}

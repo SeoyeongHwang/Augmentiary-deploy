@@ -1,7 +1,6 @@
 // pages/index.tsx
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
-import { createClient } from '../utils/supabase/client'
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"
 import { Button, Heading, JournalCard, JournalModal } from '../components'
 import type { Entry } from '../types/entry'
@@ -20,7 +19,6 @@ export default function Home() {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
   const [showModal, setShowModal] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
   const observerRef = useRef<IntersectionObserver | null>(null)
   const loadingRef = useRef<HTMLDivElement>(null)
 
@@ -82,27 +80,14 @@ export default function Home() {
         setLoadingMore(true)
       }
       
-      // localStorage에서 세션 정보 가져오기
-      const sessionData = localStorage.getItem('supabase_session')
-      if (!sessionData) {
-        console.error('세션 정보가 없습니다.')
-        return
-      }
-
-      const session = JSON.parse(sessionData)
-      if (!session.access_token) {
-        console.error('액세스 토큰이 없습니다.')
-        return
-      }
-
       const currentOffset = reset ? 0 : offset
       const limit = 20 // 한 번에 20개씩 로드
 
       // 서버사이드 API로 일기 목록 조회
       const response = await fetch(`/api/entries/list?limit=${limit}&offset=${currentOffset}`, {
         method: 'GET',
+        credentials: 'same-origin',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
       })
@@ -113,7 +98,6 @@ export default function Home() {
         console.error('일기 목록 조회 실패:', data.error)
         if (response.status === 401) {
           // 세션 만료된 경우 로그인 페이지로 이동
-          localStorage.removeItem('supabase_session')
           router.push('/login')
         }
         return

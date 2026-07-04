@@ -1,54 +1,7 @@
 // lib/augmentAgents.ts
 
-import { supabase } from './supabase'
-import { getCurrentKST } from './time'
 import { AIAgentResult, AIOption } from '../types/ai'
 import { getDirectionAgentApproachesPrompt, getAllApproachNames, getInterpretiveAgentApproachesPrompt, getApproachGuidelines } from './approaches'
-
-
-
-// AI 프롬프트를 Supabase에 저장하는 함수
-export async function saveAIPrompt(
-  entryId: string,
-  selectedText: string,
-  aiSuggestions: AIAgentResult,
-  participantCode: string
-): Promise<void> {
-  try {
-    const createdAt = getCurrentKST();
-  
-    
-    const { error } = await supabase
-      .from('ai_prompts')
-      .insert({
-        entry_id: entryId,
-        selected_text: selectedText,
-        ai_suggestion: (() => {
-          // 이미 문자열인 경우 파싱 후 다시 문자열로 변환 (이중 인코딩 방지)
-          if (typeof aiSuggestions === 'string') {
-            try {
-              const parsed = JSON.parse(aiSuggestions)
-              return JSON.stringify(parsed)
-            } catch {
-              return aiSuggestions
-            }
-          }
-          // 객체인 경우 문자열로 변환
-          return JSON.stringify(aiSuggestions)
-        })(),
-        participant_code: participantCode,
-        created_at: createdAt
-      })
-
-    if (error) {
-      console.error('AI 프롬프트 저장 실패:', error)
-    } else {
-
-    }
-  } catch (error) {
-    console.error('AI 프롬프트 저장 중 오류:', error)
-  }
-}
 
 export async function callDirectionAgent(diaryEntry: string, selectedEntry: string): Promise<{ reflective_summary: string; significance: string; approaches: string[]; raw?: string }> {
     // OpenAI API 호출 예시
@@ -643,6 +596,5 @@ function createDefaultAIAgentResult(): AIAgentResult {
     option3: defaultOption
   };
 }
-
 
 

@@ -1,5 +1,3 @@
-import { supabase } from './supabase'
-
 // 서머리 에이전트 결과 타입 정의
 export interface SummaryAgentResult {
   sum_event: string
@@ -117,4 +115,4 @@ export async function updateEntrySummary(
     console.error('❌ 일기 요약 업데이트 중 오류:', error)
     throw error
   }
-} 
+}

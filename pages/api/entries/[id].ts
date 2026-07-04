@@ -1,32 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import { 
   withErrorHandler, 
-  checkMethod, 
-  extractAccessToken,
+  checkMethod,
   createApiError,
   ErrorCode,
   sendSuccessResponse,
   sendErrorResponse
 } from '../../../lib/apiErrorHandler'
-
-// 서버 사이드에서 service_role 사용
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
-
-// 클라이언트용 supabase (인증용)
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import {
+  createAdminSupabaseClient,
+  getAuthenticatedUser,
+} from '../../../utils/supabase/server'
 
 async function getSingleEntryHandler(
   req: NextApiRequest,
@@ -39,19 +23,7 @@ async function getSingleEntryHandler(
     return sendErrorResponse(res, methodError, requestId)
   }
 
-  // 2. 액세스 토큰 추출 및 검증
-  const accessToken = extractAccessToken(req)
-  
-  if (!accessToken) {
-    const tokenError = createApiError(
-      ErrorCode.AUTHENTICATION_ERROR,
-      '인증이 필요합니다.',
-      401
-    )
-    return sendErrorResponse(res, tokenError, requestId)
-  }
-
-  // 3. 일기 ID 추출
+  // 2. 일기 ID 추출
   const { id: entryId } = req.query
   
   if (!entryId || typeof entryId !== 'string') {
@@ -65,10 +37,10 @@ async function getSingleEntryHandler(
 
   console.log('📖 개별 일기 조회 요청:', entryId, `[${requestId}]`)
 
-  // 4. 토큰으로 사용자 정보 확인
-  const { data: authUser, error: authError } = await supabaseAuth.auth.getUser(accessToken)
+  // 3. 쿠키 세션으로 사용자 정보 확인
+  const { user: authUser, error: authError } = await getAuthenticatedUser(req, res)
 
-  if (authError || !authUser.user) {
+  if (authError || !authUser) {
     console.log('❌ 인증 실패:', authError?.message, `[${requestId}]`)
     
     const authenticationError = createApiError(
@@ -80,11 +52,12 @@ async function getSingleEntryHandler(
     return sendErrorResponse(res, authenticationError, requestId)
   }
 
-  // 5. 사용자 정보 조회 (participant_code 필요)
+  // 4. 사용자 정보 조회 (participant_code 필요)
+  const supabase = createAdminSupabaseClient()
   const { data: userData, error: userError } = await supabase
     .from('users')
     .select('participant_code')
-    .eq('id', authUser.user.id)
+    .eq('id', authUser.id)
     .single()
 
   if (userError) {
@@ -140,4 +113,4 @@ async function getSingleEntryHandler(
   }, '일기를 가져왔습니다.')
 }
 
-export default withErrorHandler(getSingleEntryHandler) 
+export default withErrorHandler(getSingleEntryHandler)

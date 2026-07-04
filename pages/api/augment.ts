@@ -2,13 +2,11 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { callDirectionAgent, callInterpretiveAgent, callScaffoldingAgent, saveAIPrompt } from '../../lib/augmentAgents';
-import { AIAgentResult } from '../../types/ai';
-
-// Request ID 생성 함수
-const generateRequestId = (): string => {
-  return `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
+import { callDirectionAgent, callInterpretiveAgent, callScaffoldingAgent } from '../../lib/augmentAgents';
+import {
+  createAdminSupabaseClient,
+  getAuthenticatedUser,
+} from '../../utils/supabase/server';
 
 // userProfile JSON을 필요한 필드들만 추출하여 변환하는 함수
 const extractUserProfileForResource = (userProfileInput: any) => {
@@ -101,7 +99,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { diaryEntry, diaryEntryMarked, userProfile, entryId, participantCode, selectedText } = req.body;
+    const { user: authUser, error: authError } = await getAuthenticatedUser(req, res);
+    if (authError || !authUser) {
+      return res.status(401).json({ error: '인증이 필요합니다.' });
+    }
+
+    const { diaryEntry, selectedText } = req.body;
+    if (
+      typeof diaryEntry !== 'string' ||
+      typeof selectedText !== 'string' ||
+      !selectedText.trim()
+    ) {
+      return res.status(400).json({ error: '선택된 텍스트가 필요합니다.' });
+    }
+
+    const supabase = createAdminSupabaseClient();
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('profile')
+      .eq('id', authUser.id)
+      .single();
+
+    if (userError) {
+      console.error('❌ [AUGMENT] User profile query failed:', userError);
+      return res.status(500).json({ error: '사용자 프로필을 가져오지 못했습니다.' });
+    }
 
     console.log('🚀 [AUGMENT] Starting augmentation pipeline...');
 
@@ -115,7 +137,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // userProfile을 resource 형태로 변환    
-    const resourceProfile = extractUserProfileForResource(userProfile);
+    const resourceProfile = extractUserProfileForResource(userData?.profile);
 
     // Step 2: Interpretive Agent (모든 approach를 한번에 처리)
     console.log('💭 [STEP 2] Starting Interpretive Agent with all approaches...');

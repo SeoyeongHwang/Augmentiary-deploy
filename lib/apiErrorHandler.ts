@@ -243,21 +243,3 @@ export function checkMethod(
   
   return null
 }
-
-/**
- * 인증 토큰 추출
- */
-export function extractAccessToken(req: NextApiRequest): string | null {
-  const authHeader = req.headers.authorization
-  
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    return authHeader.substring(7)
-  }
-  
-  // POST 요청의 body에서도 확인
-  if (req.body && req.body.access_token) {
-    return req.body.access_token
-  }
-  
-  return null
-} 

@@ -1,18 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import { callSummaryAgent, updateEntrySummary } from '../../lib/summaryAgent'
-
-// 서버 사이드에서 service_role 사용 (타임아웃 제한 없음)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // service_role 키 사용
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+import { getCurrentKST } from '../../lib/time'
+import {
+  createAdminSupabaseClient,
+  getAuthenticatedUser,
+} from '../../utils/supabase/server'
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,7 +15,59 @@ export default async function handler(
   }
 
   try {
+    const { user: authUser, error: authError } = await getAuthenticatedUser(req, res)
+    if (authError || !authUser) {
+      return res.status(401).json({ error: '인증이 필요합니다.' })
+    }
+
+    const supabase = createAdminSupabaseClient()
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('participant_code')
+      .eq('id', authUser.id)
+      .single()
+
+    if (userError || !userData?.participant_code) {
+      return res.status(404).json({ error: '사용자 정보를 찾을 수 없습니다.' })
+    }
+
+    const participantCode = userData.participant_code
     const { entryData, esmData, logsData, aiPromptsData, additionalMetrics } = req.body
+
+    if (
+      typeof entryData?.id !== 'string' ||
+      typeof entryData?.title !== 'string' ||
+      typeof entryData?.content_html !== 'string' ||
+      !entryData.id.trim() ||
+      !entryData.title.trim()
+    ) {
+      return res.status(400).json({ error: 'Entry 필수 값이 올바르지 않습니다.' })
+    }
+
+    if (
+      entryData.id.length > 200 ||
+      entryData.title.length > 500 ||
+      entryData.content_html.length > 100_000
+    ) {
+      return res.status(400).json({ error: 'Entry 데이터가 허용 크기를 초과했습니다.' })
+    }
+
+    const { data: existingEntry, error: existingEntryError } = await supabase
+      .from('entries')
+      .select('participant_code')
+      .eq('id', entryData.id)
+      .maybeSingle()
+
+    if (existingEntryError) {
+      return res.status(500).json({ error: 'Entry 소유권 확인에 실패했습니다.' })
+    }
+
+    if (
+      existingEntry &&
+      existingEntry.participant_code !== participantCode
+    ) {
+      return res.status(403).json({ error: '해당 Entry를 수정할 권한이 없습니다.' })
+    }
 
     // 매우 안전한 JSON 변환 함수 (순환 참조 완전 차단)
     const safeStringify = (obj: any) => {
@@ -89,7 +133,17 @@ export default async function handler(
     };
 
     // 추가 메트릭 데이터가 있는 경우 entryData에 포함
-    let finalEntryData = { ...entryData }
+    let finalEntryData = {
+      id: entryData.id,
+      participant_code: participantCode,
+      title: entryData.title.trim(),
+      content_html: entryData.content_html,
+      shared: entryData.shared === true,
+      created_at:
+        typeof entryData.created_at === 'string'
+          ? entryData.created_at
+          : getCurrentKST(),
+    }
     if (additionalMetrics) {
       // 안전한 로그 출력 (AI 텍스트 배열 요약)
       const logSafeMetrics = {
@@ -173,9 +227,29 @@ export default async function handler(
     }
 
     // 2. ESM 응답 저장
+    const esmFields = ['SL', 'SO', 'REF1', 'REF2', 'RUM1', 'RUM2', 'THK1', 'THK2'] as const
+    const hasValidEsmData =
+      esmData &&
+      esmFields.every(
+        (field) =>
+          typeof esmData[field] === 'number' &&
+          Number.isFinite(esmData[field])
+      )
+
+    if (!hasValidEsmData) {
+      return res.status(400).json({ error: 'ESM 응답 값이 올바르지 않습니다.' })
+    }
+
+    const ownedEsmData = {
+      participant_code: participantCode,
+      entry_id: entryData.id,
+      ...Object.fromEntries(
+        esmFields.map((field) => [field, esmData[field]])
+      ),
+    }
     const { data: esmResult, error: esmError } = await supabase
       .from('esm_responses')
-      .insert(esmData)
+      .insert(ownedEsmData)
       .select()
 
     if (esmError) {
@@ -187,10 +261,15 @@ export default async function handler(
     }
 
     // 3. 로그 데이터 저장 (있는 경우)
-    if (logsData && logsData.length > 0) {
+    if (Array.isArray(logsData) && logsData.length > 0) {
+      const ownedLogsData = logsData.map((log: any) => ({
+        ...log,
+        participant_code: participantCode,
+        entry_id: entryData.id,
+      }))
       const { error: logsError } = await supabase
         .from('interaction_logs')
-        .insert(logsData)
+        .insert(ownedLogsData)
       
       if (logsError) {
         console.error('❌ 로그 저장 실패:', logsError)
@@ -199,10 +278,15 @@ export default async function handler(
     }
 
     // 4. AI 프롬프트 데이터 저장 (있는 경우)
-    if (aiPromptsData && aiPromptsData.length > 0) {
+    if (Array.isArray(aiPromptsData) && aiPromptsData.length > 0) {
+      const ownedAIPromptsData = aiPromptsData.map((prompt: any) => ({
+        ...prompt,
+        participant_code: participantCode,
+        entry_id: entryData.id,
+      }))
       const { error: aiPromptsError } = await supabase
         .from('ai_prompts')
-        .insert(aiPromptsData)
+        .insert(ownedAIPromptsData)
       
       if (aiPromptsError) {
         console.error('❌ AI 프롬프트 저장 실패:', aiPromptsError)
@@ -257,4 +341,4 @@ export default async function handler(
       details: error instanceof Error ? error.message : 'Unknown error' 
     })
   }
-} 
+}

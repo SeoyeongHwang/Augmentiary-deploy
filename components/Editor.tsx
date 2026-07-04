@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 import { Button, Heading, Card, Textarea, TextInput } from './index'
 import { ArrowUturnLeftIcon, ArrowUturnRightIcon, BookmarkSquareIcon } from "@heroicons/react/24/outline";
 import CircleIconButton from './CircleIconButton';
@@ -8,42 +7,10 @@ export default function Editor({ userId }: { userId: string }) {
   const [text, setText] = useState('')
   const [title, setTitle] = useState('')
   const [augments, setAugments] = useState<{ start: number; end: number; inserted: string }[]>([])
-  const [beliefSummary, setBeliefSummary] = useState('')
   const [augmentOptions, setAugmentOptions] = useState<string[] | null>(null)
   const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [loading, setLoading] = useState(false)
-
-  // 사용자 프로필 가져오기
-  useEffect(() => {
-    const fetchBelief = async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('profile')
-        .eq('id', userId)
-        .single()
-      if (!error && data?.profile) {
-        console.log('🔍 Editor.tsx data.profile 디버깅:', {
-          profile: data.profile,
-          type: typeof data.profile,
-          isString: typeof data.profile === 'string',
-          isObject: typeof data.profile === 'object'
-        })
-        
-        let profileContent = ''
-        if (typeof data.profile === 'string') {
-          profileContent = data.profile.trim()
-        } else if (typeof data.profile === 'object' && data.profile !== null) {
-          profileContent = JSON.stringify(data.profile)
-        }
-        
-        if (profileContent) {
-          setBeliefSummary(profileContent)
-        }
-      }
-    }
-    if (userId) fetchBelief()
-  }, [userId])
 
   const handleAugment = async () => {
     if (loading) return
@@ -55,15 +22,14 @@ export default function Editor({ userId }: { userId: string }) {
     if (!selected.trim()) return alert('텍스트를 선택하세요.')
     setLoading(true)
     setSelectionRange({ start, end })
-    const diaryEntryMarked = text.slice(0, end) + ' <<INSERT HERE>> ' + text.slice(end)
     try {
       const res = await fetch('/api/augment', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           diaryEntry: text,
-          diaryEntryMarked: diaryEntryMarked,
-          userProfile: beliefSummary,
+          selectedText: selected,
         }),
       })
       const data = await res.json()

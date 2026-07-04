@@ -7,10 +7,9 @@ module.exports = {
       tsconfigRootDir: __dirname,
       sourceType: 'module',
     },
-    plugins: ['@typescript-eslint'],
-    extends: [
-      'next/core-web-vitals',
-      'plugin:@typescript-eslint/recommended',
-    ],
+    extends: ['next/core-web-vitals'],
+    rules: {
+      '@next/next/no-img-element': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
+    },
   }
-  

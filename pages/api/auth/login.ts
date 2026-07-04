@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import { 
   withErrorHandler, 
   checkMethod, 
@@ -11,24 +10,10 @@ import {
   sendSuccessResponse,
   sendErrorResponse
 } from '../../../lib/apiErrorHandler'
-
-// 서버 사이드에서 service_role 사용
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
-
-// 클라이언트용 supabase (인증용)
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import {
+  createAdminSupabaseClient,
+  createServerSupabaseClient,
+} from '../../../utils/supabase/server'
 
 async function loginHandler(
   req: NextApiRequest,
@@ -73,6 +58,7 @@ async function loginHandler(
   console.log('🔐 로그인 시도:', email, `[${requestId}]`)
 
   // 3. Supabase 인증
+  const supabaseAuth = createServerSupabaseClient(req, res)
   const { data: authData, error: authError } = await supabaseAuth.auth.signInWithPassword({
     email,
     password
@@ -116,6 +102,7 @@ async function loginHandler(
   console.log('✅ 인증 성공:', authData.user.id, `[${requestId}]`)
 
   // 4. 사용자 정보 조회 (service_role 사용)
+  const supabase = createAdminSupabaseClient()
   const { data: userData, error: userError } = await supabase
     .from('users')
     .select('*')
@@ -156,7 +143,6 @@ async function loginHandler(
       console.log('✅ 신규 사용자 생성 완료', `[${requestId}]`)
       
       return sendSuccessResponse(res, {
-        session: authData.session,
         user: createdUser
       }, '로그인 성공 (신규 사용자)')
     } else {
@@ -174,9 +160,8 @@ async function loginHandler(
 
   // 5. 성공 응답
   sendSuccessResponse(res, {
-    session: authData.session,
     user: userData
   }, '로그인 성공')
 }
 
-export default withErrorHandler(loginHandler) 
+export default withErrorHandler(loginHandler)

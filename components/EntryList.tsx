@@ -25,26 +25,11 @@ export default function EntryList({}: Props) {
       try {
         setLoading(true)
         
-        // localStorage에서 세션 정보 가져오기
-        const sessionData = localStorage.getItem('supabase_session')
-        if (!sessionData) {
-          console.error('세션 정보가 없습니다.')
-          setLoading(false)
-          return
-        }
-
-        const session = JSON.parse(sessionData)
-        if (!session.access_token) {
-          console.error('액세스 토큰이 없습니다.')
-          setLoading(false)
-          return
-        }
-
         // 서버사이드 API로 일기 목록 조회
         const response = await fetch('/api/entries/list', {
           method: 'GET',
+          credentials: 'same-origin',
           headers: {
-            'Authorization': `Bearer ${session.access_token}`,
             'Content-Type': 'application/json',
           },
         })
@@ -55,7 +40,6 @@ export default function EntryList({}: Props) {
           console.error('일기 목록 조회 실패:', data.error)
           if (response.status === 401) {
             // 세션 만료된 경우
-            localStorage.removeItem('supabase_session')
             console.log('세션이 만료되었습니다.')
           }
           setLoading(false)

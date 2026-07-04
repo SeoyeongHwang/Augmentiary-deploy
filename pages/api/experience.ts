@@ -1,38 +1,17 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import { 
   withErrorHandler, 
   checkMethod, 
-  extractAccessToken,
   createApiError,
   ErrorCode,
   sendSuccessResponse,
   sendErrorResponse
 } from '../../lib/apiErrorHandler'
 import { callPastRecordAgent, callAutobiographicReasoningAgent, callPastContextAgent, callPastContextRelevanceAgent, callExperienceScaffoldingAgent, callPastContextScaffoldingAgent } from '../../lib/experienceAgent'
-
-// 서버 사이드에서 service_role 사용
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
-
-// 클라이언트용 supabase (인증용)
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-
-
-
-
+import {
+  createAdminSupabaseClient,
+  getAuthenticatedUser,
+} from '../../utils/supabase/server'
 async function experienceHandler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -46,22 +25,43 @@ async function experienceHandler(
 
   console.log('💭 경험 떠올리기 요청', `[${requestId}]`)
 
-  // 2. 요청 데이터 검증
-  const { selectedText, currentEntryId, participantCode } = req.body
-  
+  // 2. 쿠키 세션으로 사용자 확인
+  const { user: authUser, error: authError } = await getAuthenticatedUser(req, res)
+  if (authError || !authUser) {
+    const authenticationError = createApiError(
+      ErrorCode.AUTHENTICATION_ERROR,
+      '인증이 필요합니다.',
+      401
+    )
+    return sendErrorResponse(res, authenticationError, requestId)
+  }
+
+  const supabase = createAdminSupabaseClient()
+  const { data: userData, error: userError } = await supabase
+    .from('users')
+    .select('participant_code')
+    .eq('id', authUser.id)
+    .single()
+
+  if (userError || !userData?.participant_code) {
+    const userQueryError = createApiError(
+      ErrorCode.DATABASE_ERROR,
+      '사용자 정보를 찾을 수 없습니다.',
+      404,
+      { dbError: userError }
+    )
+    return sendErrorResponse(res, userQueryError, requestId)
+  }
+
+  const participantCode = userData.participant_code
+
+  // 3. 요청 데이터 검증
+  const { selectedText, currentEntryId } = req.body
+
   if (!selectedText || typeof selectedText !== 'string') {
     const validationError = createApiError(
       ErrorCode.VALIDATION_ERROR,
       '선택된 텍스트가 필요합니다.',
-      400
-    )
-    return sendErrorResponse(res, validationError, requestId)
-  }
-
-  if (!participantCode || typeof participantCode !== 'string') {
-    const validationError = createApiError(
-      ErrorCode.VALIDATION_ERROR,
-      '참가자 코드가 필요합니다.',
       400
     )
     return sendErrorResponse(res, validationError, requestId)
@@ -315,4 +315,4 @@ async function experienceHandler(
   }, `${finalExperiences.length}개의 관련 경험을 찾았습니다.`)
 }
 
-export default withErrorHandler(experienceHandler) 
+export default withErrorHandler(experienceHandler)

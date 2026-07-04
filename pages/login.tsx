@@ -22,6 +22,7 @@ export default function LoginPage() {
         // 회원가입 - 서버사이드 API 호출
         const response = await fetch('/api/auth/signup', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -44,11 +45,8 @@ export default function LoginPage() {
 
         console.log('✅ 회원가입 성공:', data.message)
         
-        // 세션이 포함된 경우 localStorage에 저장
-        if (data.data?.session) {
-          localStorage.setItem('supabase_session', JSON.stringify(data.data.session))
-          console.log('🔐 세션 저장 완료')
-          
+        // Supabase가 인증 쿠키를 설정한 경우 바로 설문으로 이동
+        if (data.data?.authenticated) {
           // 회원가입 후 설문 페이지로 이동 (profile 설정을 위해)
           await router.push('/survey')
         } else {
@@ -61,6 +59,7 @@ export default function LoginPage() {
         // 로그인 - 서버사이드 API 호출
         const response = await fetch('/api/auth/login', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -77,12 +76,6 @@ export default function LoginPage() {
         }
 
         console.log('✅ 로그인 성공:', data.data.user.participant_code)
-        
-        // 세션을 localStorage에 저장
-        if (data.data?.session) {
-          localStorage.setItem('supabase_session', JSON.stringify(data.data.session))
-          console.log('🔐 세션 저장 완료')
-        }
         
         // 메인 페이지로 이동
         await router.push('/')

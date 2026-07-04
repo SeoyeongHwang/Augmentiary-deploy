@@ -1,33 +1,17 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import { 
   withErrorHandler, 
   checkMethod, 
-  validateRequired, 
-  extractAccessToken,
+  validateRequired,
   createApiError,
   ErrorCode,
   sendSuccessResponse,
   sendErrorResponse
 } from '../../../lib/apiErrorHandler'
-
-// 서버 사이드에서 service_role 사용
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
-
-// 클라이언트용 supabase (인증용)
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import {
+  createAdminSupabaseClient,
+  getAuthenticatedUser,
+} from '../../../utils/supabase/server'
 
 interface SurveyData {
   // 기본정보
@@ -221,28 +205,12 @@ async function generateProfileHandler(
   }
 
   // 2. 인증 확인
-  const sessionData = req.headers.cookie?.includes('supabase_session') 
-    ? JSON.parse(req.headers.cookie.split('supabase_session=')[1]?.split(';')[0] || '{}')
-    : null
-
-  // localStorage에서 세션을 가져오는 것이 아니라 요청에서 직접 토큰 추출
-  const accessToken = req.headers.authorization?.replace('Bearer ', '')
-  
-  if (!accessToken) {
-    const tokenError = createApiError(
-      ErrorCode.AUTHENTICATION_ERROR,
-      '인증이 필요합니다.',
-      401
-    )
-    return sendErrorResponse(res, tokenError, requestId)
-  }
-
   console.log('📝 프로필 생성 요청', `[${requestId}]`)
 
-  // 3. 토큰으로 사용자 정보 확인
-  const { data: authUser, error: authError } = await supabaseAuth.auth.getUser(accessToken)
+  // 3. 쿠키 세션으로 사용자 정보 확인
+  const { user: authUser, error: authError } = await getAuthenticatedUser(req, res)
 
-  if (authError || !authUser.user) {
+  if (authError || !authUser) {
     console.log('❌ 인증 실패:', authError?.message, `[${requestId}]`)
     
     const authenticationError = createApiError(
@@ -274,10 +242,11 @@ async function generateProfileHandler(
   }
 
   // 5. 사용자 정보 조회
+  const supabase = createAdminSupabaseClient()
   const { data: userData, error: userError } = await supabase
     .from('users')
     .select('*')
-    .eq('id', authUser.user.id)
+    .eq('id', authUser.id)
     .single()
 
   if (userError) {
@@ -325,7 +294,7 @@ async function generateProfileHandler(
     const { data: updatedUser, error: updateError } = await supabase
       .from('users')
       .update({ profile: generatedProfile })
-      .eq('id', authUser.user.id)
+      .eq('id', authUser.id)
       .select()
       .single()
 
@@ -362,4 +331,4 @@ async function generateProfileHandler(
   }
 }
 
-export default withErrorHandler(generateProfileHandler) 
+export default withErrorHandler(generateProfileHandler)

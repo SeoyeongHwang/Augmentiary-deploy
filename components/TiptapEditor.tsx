@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { AIHighlight } from '../utils/tiptapExtensions'
@@ -19,7 +18,6 @@ import { calculateEditRatio } from '../utils/diff'
 import type { AICategory, AIAgentResult } from '../types/ai'
 import { useInteractionLog } from '../hooks/useInteractionLog'
 import { useSession } from '../hooks/useSession'
-import { saveAIPrompt } from '../lib/augmentAgents'
 import Placeholder from '@tiptap/extension-placeholder'
 import { addAIPromptToQueue } from '../utils/aiPromptQueue'
 
@@ -69,7 +67,6 @@ export default function Editor({
     }
   }, [title, onTitleChange])
   const [augments, setAugments] = useState<{ start: number; end: number; inserted: string; requestId: string; category: AICategory; originalText: string }[]>([])
-  const [beliefSummary, setBeliefSummary] = useState('')
   const [augmentOptions, setAugmentOptions] = useState<AIAgentResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [fontMenuOpen, setFontMenuOpen] = useState(false)
@@ -137,16 +134,6 @@ export default function Editor({
     
   })
 
-  // 사용자 프로필 가져오기 - 서버사이드 API 사용 대신 useSession의 user 데이터 활용
-  useEffect(() => {
-    // user 객체에 profile이 있으면 사용, 없으면 빈 문자열
-    if (user?.profile) {
-      setBeliefSummary(user.profile)
-    } else {
-      setBeliefSummary('') // 기본값으로 빈 문자열 설정
-    }
-  }, [user])
-
   // AI 하이라이트 색상 설정 (기본값만 설정)
   useEffect(() => {
     // 기본 초록색 배경으로 설정 (localStorage 복원 제거)
@@ -178,19 +165,15 @@ export default function Editor({
     setBubbleMenuPosition({ from, to })
     
     const fullText = editor.state.doc.textContent
-    const diaryEntryMarked = fullText.slice(0, to) + ' <<INSERT HERE>> ' + fullText.slice(to)
     const previousContext = fullText.slice(0, from) // 선택된 부분 직전까지의 맥락
 
     try {
       const res = await fetch('/api/augment', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           diaryEntry: previousContext,
-          diaryEntryMarked: diaryEntryMarked,
-          userProfile: beliefSummary,
-          entryId: entryId,
-          participantCode: user.participant_code,
           selectedText: selectedText,
         }),
       })
@@ -221,7 +204,7 @@ export default function Editor({
     } finally {
       setBubbleMenuLoading(false)
     }
-  }, [bubbleMenuLoading, editor, beliefSummary, canLogState, entryId, logAITrigger, user])
+  }, [bubbleMenuLoading, editor, canLogState, entryId, logAITrigger, user])
 
   // AI 텍스트 편집 감지 및 투명도 업데이트 (직접 스타일 적용)
   const handleAITextEdit = useCallback(() => {
@@ -371,19 +354,15 @@ export default function Editor({
     setLoading(true)
     
     const fullText = editor.state.doc.textContent
-    const diaryEntryMarked = fullText.slice(0, to) + ' <<INSERT HERE>> ' + fullText.slice(to)
     const previousContext = fullText.slice(0, from) // 선택된 부분 직전까지의 맥락
 
     try {
       const res = await fetch('/api/augment', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           diaryEntry: previousContext,
-          diaryEntryMarked: diaryEntryMarked,
-          userProfile: beliefSummary,
-          entryId: entryId,
-          participantCode: user.participant_code,
           selectedText: selectedText,
         }),
       })

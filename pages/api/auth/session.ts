@@ -1,32 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createClient } from '@supabase/supabase-js'
 import { 
   withErrorHandler, 
-  checkMethod, 
-  extractAccessToken,
+  checkMethod,
   createApiError,
   ErrorCode,
   sendSuccessResponse,
   sendErrorResponse
 } from '../../../lib/apiErrorHandler'
-
-// 서버 사이드에서 service_role 사용
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
-
-// 클라이언트용 supabase (인증용)
-const supabaseAuth = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import {
+  createAdminSupabaseClient,
+  getAuthenticatedUser,
+} from '../../../utils/supabase/server'
 
 async function sessionHandler(
   req: NextApiRequest,
@@ -34,30 +18,18 @@ async function sessionHandler(
   requestId: string
 ) {
   // 1. 메서드 검증
-  const methodError = checkMethod(req, ['GET', 'POST'])
+  const methodError = checkMethod(req, ['GET'])
   if (methodError) {
     return sendErrorResponse(res, methodError, requestId)
   }
 
-  // 2. 액세스 토큰 추출
-  const accessToken = extractAccessToken(req)
-  
-  if (!accessToken) {
-    const tokenError = createApiError(
-      ErrorCode.AUTHENTICATION_ERROR,
-      '액세스 토큰이 필요합니다.',
-      401,
-      { isLoggedIn: false }
-    )
-    return sendErrorResponse(res, tokenError, requestId)
-  }
+  // 2. Supabase SSR 쿠키 세션 확인
+  console.log('🔍 쿠키 세션 확인 시도', `[${requestId}]`)
 
-  console.log('🔍 세션 확인 시도', `[${requestId}]`)
+  // 3. 서명 검증된 사용자 정보 조회
+  const { user: authUser, error: authError } = await getAuthenticatedUser(req, res)
 
-  // 3. 액세스 토큰으로 사용자 정보 조회
-  const { data: authUser, error: authError } = await supabaseAuth.auth.getUser(accessToken)
-
-  if (authError || !authUser.user) {
+  if (authError || !authUser) {
     console.log('❌ 세션 만료 또는 무효:', authError?.message, `[${requestId}]`)
     
     const sessionError = createApiError(
@@ -69,13 +41,14 @@ async function sessionHandler(
     return sendErrorResponse(res, sessionError, requestId)
   }
 
-  console.log('✅ 유효한 토큰:', authUser.user.id, `[${requestId}]`)
+  console.log('✅ 유효한 세션:', authUser.id, `[${requestId}]`)
 
   // 4. 사용자 정보 조회 (service_role 사용)
+  const supabase = createAdminSupabaseClient()
   const { data: userData, error: userError } = await supabase
     .from('users')
     .select('*')
-    .eq('id', authUser.user.id)
+    .eq('id', authUser.id)
     .single()
 
   if (userError) {
@@ -86,9 +59,9 @@ async function sessionHandler(
       console.log('👤 사용자 정보 없음, 기본 정보 생성', `[${requestId}]`)
       
       const newUserData = {
-        id: authUser.user.id,
-        email: authUser.user.email!,
-        name: authUser.user.user_metadata?.name || authUser.user.email!.split('@')[0],
+        id: authUser.id,
+        email: authUser.email!,
+        name: authUser.user_metadata?.name || authUser.email!.split('@')[0],
         participant_code: `P${Date.now()}`
       }
 
@@ -129,44 +102,11 @@ async function sessionHandler(
 
   console.log('✅ 세션 확인 완료:', userData.participant_code, `[${requestId}]`)
 
-  // 5. POST 요청시 토큰 갱신 처리
-  if (req.method === 'POST') {
-    const { refresh_token } = req.body
-    
-    if (refresh_token) {
-      console.log('🔄 토큰 갱신 시도', `[${requestId}]`)
-      
-      const { data: sessionData, error: refreshError } = await supabaseAuth.auth.refreshSession({
-        refresh_token
-      })
-
-      if (refreshError) {
-        console.error('❌ 토큰 갱신 실패:', refreshError.message, `[${requestId}]`)
-        
-        const refreshTokenError = createApiError(
-          ErrorCode.AUTHENTICATION_ERROR,
-          '토큰 갱신에 실패했습니다.',
-          401,
-          { isLoggedIn: false, refreshError: refreshError.message }
-        )
-        return sendErrorResponse(res, refreshTokenError, requestId)
-      }
-
-      console.log('✅ 토큰 갱신 완료', `[${requestId}]`)
-      
-      return sendSuccessResponse(res, {
-        isLoggedIn: true,
-        user: userData,
-        session: sessionData.session
-      }, '토큰 갱신 완료')
-    }
-  }
-
-  // 6. 성공 응답
+  // 5. 성공 응답
   sendSuccessResponse(res, {
     isLoggedIn: true,
     user: userData
   }, '세션 확인 완료')
 }
 
-export default withErrorHandler(sessionHandler) 
+export default withErrorHandler(sessionHandler)

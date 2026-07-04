@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import { createClient } from '../utils/supabase/client'
 import { ArrowLeftIcon } from "@heroicons/react/24/outline"
 import { TiptapEditor2, Button, ESMModal } from '../components'
 import ConfirmModal from '../components/ConfirmModal'
@@ -18,7 +17,6 @@ import { getQueuedAIPromptsForServerSide } from '../utils/aiPromptQueue'
 
 export default function Write() {
   const { user, loading, refreshSession, checkSession } = useSession()
-  const supabase = createClient()
   const [participantCode, setParticipantCode] = useState<string | null>(null)
   const [entryId, setEntryId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
@@ -225,10 +223,6 @@ export default function Write() {
 
     // 데이터베이스 저장 시도
     try {
-      if (!supabase) {
-        throw new Error('Supabase 클라이언트가 초기화되지 않았습니다')
-      }
-      
       if (!user) {
         console.error('❌ 사용자 정보 없음')
         router.push('/login')
@@ -402,6 +396,7 @@ export default function Write() {
       // 서버 사이드 API 호출
       const response = await fetch('/api/entries', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -465,7 +460,6 @@ export default function Write() {
           const sessionRecheck = await checkSession()
           if (!sessionRecheck.success && sessionRecheck.needsLogin) {
             console.log('🔒 저장 실패 후 세션 재확인 결과: 로그인 필요')
-            localStorage.removeItem('supabase_session')
             router.push('/login')
             return
           }
