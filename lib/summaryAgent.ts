@@ -1,3 +1,9 @@
+import {
+  getOpenAIChatCompletionText,
+  isOpenAIAPIError,
+  OPENAI_MODEL,
+} from './openai'
+
 // 서머리 에이전트 결과 타입 정의
 export interface SummaryAgentResult {
   sum_event: string
@@ -39,7 +45,7 @@ export async function callSummaryAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: prompt },
           { role: 'user', content: `Diary content: \n${diaryContent}` },
@@ -48,12 +54,7 @@ export async function callSummaryAgent(
       }),
     })
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API 호출 실패: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const textResult = data.choices?.[0]?.message?.content || ''
+    const textResult = await getOpenAIChatCompletionText(response)
     
     try {
       const jsonStart = textResult.indexOf('{')
@@ -81,6 +82,10 @@ export async function callSummaryAgent(
     }
   } catch (error) {
     console.error('서머리 에이전트 API 호출 오류:', error)
+    if (isOpenAIAPIError(error)) {
+      throw error
+    }
+
     return { sum_event: '', sum_innerstate: '', sum_insight: '' }
   }
 }

@@ -12,6 +12,10 @@ import {
   createAdminSupabaseClient,
   getAuthenticatedUser,
 } from '../../../utils/supabase/server'
+import {
+  getOpenAIChatCompletionText,
+  OPENAI_MODEL,
+} from '../../../lib/openai'
 
 interface SurveyData {
   // 기본정보
@@ -147,7 +151,7 @@ JSON 형식만 반환하고, 다른 텍스트는 포함하지 마세요.`
         'Authorization': `Bearer ${openaiApiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           {
             role: 'system',
@@ -158,23 +162,12 @@ JSON 형식만 반환하고, 다른 텍스트는 포함하지 마세요.`
             content: prompt
           }
         ],
-        max_tokens: 1000,
+        max_completion_tokens: 1000,
         temperature: 0.5
       })
     })
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(`OpenAI API 오류: ${errorData.error?.message || 'Unknown error'}`)
-    }
-
-    const data = await response.json()
-    
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('OpenAI API 응답 형식이 올바르지 않습니다.')
-    }
-
-    const profileContent = data.choices[0].message.content.trim()
+    const profileContent = await getOpenAIChatCompletionText(response)
     
     // JSON 형식 검증 및 파싱
     let parsedProfile: any

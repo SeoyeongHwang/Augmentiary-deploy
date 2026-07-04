@@ -1,5 +1,11 @@
 // lib/experienceAgent.ts
 
+import {
+  getOpenAIChatCompletionText,
+  isOpenAIAPIError,
+  OPENAI_MODEL,
+} from './openai'
+
 // 경험 분석 에이전트 결과 타입 정의
 export interface ExperienceAnalysisResult {
   similarity: number
@@ -76,7 +82,7 @@ export async function callPastRecordAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
         ],
@@ -84,12 +90,7 @@ export async function callPastRecordAgent(
       }),
     })
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API 호출 실패: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const textResult = data.choices?.[0]?.message?.content || ''
+    const textResult = await getOpenAIChatCompletionText(response)
     
     try {
       const jsonStart = textResult.indexOf('{')
@@ -160,6 +161,10 @@ export async function callPastRecordAgent(
     }
   } catch (error) {
     console.error('경험 에이전트 API 호출 오류:', error)
+    if (isOpenAIAPIError(error)) {
+      throw error
+    }
+
     return {
       innerstateSimilarity: 0,
       insightSimilarity: 0,
@@ -224,7 +229,7 @@ export async function callAutobiographicReasoningAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
         ],
@@ -233,12 +238,7 @@ export async function callAutobiographicReasoningAgent(
       }),
     })
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API 호출 실패: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const textResult = data.choices?.[0]?.message?.content || ''
+    const textResult = await getOpenAIChatCompletionText(response)
     
     try {
       const jsonStart = textResult.indexOf('{')
@@ -274,6 +274,10 @@ export async function callAutobiographicReasoningAgent(
     }
   } catch (error) {
     console.error('경험 설명 에이전트 API 호출 오류:', error)
+    if (isOpenAIAPIError(error)) {
+      throw error
+    }
+
     return { 
       strategy: '과거 경험 떠올려보기', 
       description: '관련된 과거 경험이 있습니다.', 
@@ -331,7 +335,7 @@ export async function callPastContextAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
         ],
@@ -340,12 +344,7 @@ export async function callPastContextAgent(
       }),
     })
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API 호출 실패: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const textResult = data.choices?.[0]?.message?.content || ''
+    const textResult = await getOpenAIChatCompletionText(response)
     
     try {
       const jsonStart = textResult.indexOf('{')
@@ -381,6 +380,10 @@ export async function callPastContextAgent(
     }
   } catch (error) {
     console.error('과거 맥락 에이전트 API 호출 오류:', error)
+    if (isOpenAIAPIError(error)) {
+      throw error
+    }
+
     return { 
       strategy: '과거 배경 떠올려보기', 
       description: '내 과거 경험이 지금과 연결되어 있을 수 있어요.', 
@@ -437,7 +440,7 @@ export async function callPastContextRelevanceAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
         ],
@@ -445,12 +448,7 @@ export async function callPastContextRelevanceAgent(
       }),
     })
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API 호출 실패: ${response.status}`)
-    }
-
-    const data = await response.json()
-    const textResult = data.choices?.[0]?.message?.content || ''
+    const textResult = await getOpenAIChatCompletionText(response)
     
     try {
       const jsonStart = textResult.indexOf('{')
@@ -477,6 +475,10 @@ export async function callPastContextRelevanceAgent(
     }
   } catch (error) {
     console.error('과거 맥락 연관성 에이전트 API 호출 오류:', error)
+    if (isOpenAIAPIError(error)) {
+      throw error
+    }
+
     return { relevance: 0, reason: '분석 오류' }
   }
 }
@@ -529,7 +531,7 @@ Return the exact same JSON structure as input, but with the description field co
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
@@ -539,8 +541,7 @@ Return the exact same JSON structure as input, but with the description field co
       }),
     });
 
-    const data = await response.json();
-    const textResult = data.choices?.[0]?.message?.content || '';
+    const textResult = await getOpenAIChatCompletionText(response);
 
     try {
       const jsonStart = textResult.indexOf('{');
@@ -606,6 +607,10 @@ Return the exact same JSON structure as input, but with the description field co
     }
   } catch (error) {
     console.error('❌ [EXPERIENCE SCAFFOLDING AGENT] API call error:', error);
+    if (isOpenAIAPIError(error)) {
+      throw error;
+    }
+
     return originalResult;
   }
 }
@@ -658,7 +663,7 @@ Return the exact same JSON structure as input, but with the description field co
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
@@ -668,8 +673,7 @@ Return the exact same JSON structure as input, but with the description field co
       }),
     });
 
-    const data = await response.json();
-    const textResult = data.choices?.[0]?.message?.content || '';
+    const textResult = await getOpenAIChatCompletionText(response);
 
     try {
       const jsonStart = textResult.indexOf('{');
@@ -735,6 +739,10 @@ Return the exact same JSON structure as input, but with the description field co
     }
   } catch (error) {
     console.error('❌ [PAST CONTEXT SCAFFOLDING AGENT] API call error:', error);
+    if (isOpenAIAPIError(error)) {
+      throw error;
+    }
+
     return originalResult;
   }
 }

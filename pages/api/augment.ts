@@ -3,6 +3,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { callDirectionAgent, callInterpretiveAgent, callScaffoldingAgent } from '../../lib/augmentAgents';
+import { isOpenAIAPIError } from '../../lib/openai';
 import {
   createAdminSupabaseClient,
   getAuthenticatedUser,
@@ -208,7 +209,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error('❌ [AUGMENT] Error in augmentation pipeline:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    if (isOpenAIAPIError(error)) {
+      return res.status(error.statusCode).json({
+        error: error.message,
+        code: error.code,
+      });
+    }
+
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
 }
 

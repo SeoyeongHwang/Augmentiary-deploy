@@ -2,6 +2,7 @@
 
 import { AIAgentResult, AIOption } from '../types/ai'
 import { getDirectionAgentApproachesPrompt, getAllApproachNames, getInterpretiveAgentApproachesPrompt, getApproachGuidelines } from './approaches'
+import { getOpenAIChatCompletionText, OPENAI_MODEL } from './openai'
 
 export async function callDirectionAgent(diaryEntry: string, selectedEntry: string): Promise<{ reflective_summary: string; significance: string; approaches: string[]; raw?: string }> {
     // OpenAI API 호출 예시
@@ -43,7 +44,7 @@ Your output must be a JSON object structured as follows:
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `
@@ -55,8 +56,7 @@ Your output must be a JSON object structured as follows:
       }),
     });
   
-    const data = await response.json();
-    const textResult = data.choices?.[0]?.message?.content || '';
+    const textResult = await getOpenAIChatCompletionText(response);
     
     console.log('🔍 [DIRECTION AGENT] Raw OpenAI response:', textResult);
     
@@ -195,7 +195,7 @@ You must provide your response as valid, strictly structured JSON. The output mu
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: OPENAI_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
@@ -205,8 +205,7 @@ You must provide your response as valid, strictly structured JSON. The output mu
       }),
     })
 
-    const data = await response.json();
-    const textResult = data.choices?.[0]?.message?.content || '';
+    const textResult = await getOpenAIChatCompletionText(response);
     
     try {
         const jsonStart = textResult.indexOf('{');
@@ -358,7 +357,7 @@ Return the exact same JSON structure as input, but with each "text" field contai
       'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: OPENAI_MODEL,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
@@ -368,8 +367,7 @@ Return the exact same JSON structure as input, but with each "text" field contai
     }),
   });
 
-  const data = await response.json();
-  const textResult = data.choices?.[0]?.message?.content || '';
+  const textResult = await getOpenAIChatCompletionText(response);
   
   try {
     const jsonStart = textResult.indexOf('{');
@@ -596,5 +594,3 @@ function createDefaultAIAgentResult(): AIAgentResult {
     option3: defaultOption
   };
 }
-
-

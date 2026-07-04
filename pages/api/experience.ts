@@ -8,6 +8,7 @@ import {
   sendErrorResponse
 } from '../../lib/apiErrorHandler'
 import { callPastRecordAgent, callAutobiographicReasoningAgent, callPastContextAgent, callPastContextRelevanceAgent, callExperienceScaffoldingAgent, callPastContextScaffoldingAgent } from '../../lib/experienceAgent'
+import { isOpenAIAPIError } from '../../lib/openai'
 import {
   createAdminSupabaseClient,
   getAuthenticatedUser,
@@ -160,6 +161,10 @@ async function experienceHandler(
         }
       } catch (error) {
         console.error(`❌ 경험 설명 생성 실패 (ID: ${exp.id}):`, error, `[${requestId}]`)
+        if (isOpenAIAPIError(error)) {
+          throw error
+        }
+
         // 에러가 발생해도 기본 데이터는 반환
         return {
           id: exp.id,
@@ -292,6 +297,9 @@ async function experienceHandler(
       }
     } catch (error) {
       console.error('❌ 과거 맥락 카드 생성 실패:', error, `[${requestId}]`)
+      if (isOpenAIAPIError(error)) {
+        throw error
+      }
     }
   }
 
