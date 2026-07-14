@@ -70,9 +70,9 @@ export default function Editor({
   
   // 사용량 추적을 위한 상태 추가
   const [leftPanelRequests, setLeftPanelRequests] = useState(0) // 경험 찾기 요청 횟수
-  const [rightPanelRequests, setRightPanelRequests] = useState(0) // 확장하기 요청 횟수
+  const [rightPanelRequests, setRightPanelRequests] = useState(0) // 관점 확장하기 요청 횟수
   const [leftPanelInsertions, setLeftPanelInsertions] = useState(0) // 경험 찾기 결과 삽입 횟수
-  const [rightPanelInsertions, setRightPanelInsertions] = useState(0) // 확장하기 결과 삽입 횟수
+  const [rightPanelInsertions, setRightPanelInsertions] = useState(0) // 관점 확장하기 결과 삽입 횟수
   const [aiTextsAdded, setAiTextsAdded] = useState<Array<{
     text: string
     type: 'experience' | 'generation'
@@ -1233,14 +1233,14 @@ export default function Editor({
     const finalRequestId = generateRequestId();
     const category: AICategory = 'interpretive';
 
-    // 오른쪽 패널(확장하기)에서 직접 호출된 경우 카운트 및 기록 추가
+    // 오른쪽 패널(관점 확장하기)에서 직접 호출된 경우 카운트 및 기록 추가
     if (selectedOption?.type === 'generation') {
       setRightPanelInsertions(prev => {
         console.log('⚡ [METRICS] 오른쪽 패널 삽입 카운트:', prev, '->', prev + 1);
         return prev + 1;
       });
       
-      // 확장하기 결과에서 안전한 메타데이터 추출
+      // 관점 확장하기 결과에서 안전한 메타데이터 추출
       const safeText = String(inserted || '').substring(0, 200); // 문자열로 변환 후 제한
       
       // selectedOption에서 안전한 메타데이터 추출
@@ -1498,7 +1498,7 @@ export default function Editor({
   useEffect(() => {
     if (bubbleMenuOptions || augmentOptions) {
       setAugmentVisible(true);
-      // 새로운 확장하기 응답이 올 때마다 모든 카드를 접힌 상태로 초기화
+      // 새로운 관점 확장하기 응답이 올 때마다 모든 카드를 접힌 상태로 초기화
       setAugmentCardCollapsed({});
     }
   }, [bubbleMenuOptions, augmentOptions]);
@@ -1888,10 +1888,10 @@ export default function Editor({
                                 handleMeaningAugment();
                               }}
                               className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-transparent hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 transition-all duration-300 text-base font-bold text-white hover:text-white hover:shadow-lg"
-                              title="확장하기"
+                              title="관점 확장하기"
                             >
                               <SparkleIcon className="w-4 h-4" />
-                              확장하기
+                              관점 확장하기
                             </button>
                           </>
                         )}
@@ -1909,7 +1909,7 @@ export default function Editor({
         </div>
       </div>
       {/* 오른쪽 패널
-      : 확장하기 결과 */}
+      : 관점 확장하기 결과 */}
       <aside className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit px-0 pb-4 overflow-visible order-3 lg:order-3 ${
         (bubbleMenuOptions || augmentOptions) && augmentVisible && !augmentCollapsed ? 'lg:h-full lg:overflow-hidden' : 'lg:overflow-visible'
       }`}>
@@ -1917,7 +1917,7 @@ export default function Editor({
           (bubbleMenuOptions || augmentOptions) && augmentVisible && !augmentCollapsed ? 'lg:flex-1 lg:overflow-y-auto' : ''
         }`}>
           {/* <Button onClick={handleAugment} disabled={loading} className="px-4 py-2 rounded">
-            {loading ? '고민하는 중...' : '확장하기'}
+            {loading ? '고민하는 중...' : '관점 확장하기'}
           </Button> */}
           {/* 증강 옵션 */}
           {(bubbleMenuOptions || augmentOptions) && augmentVisible && (
@@ -1942,7 +1942,7 @@ export default function Editor({
                       <ChevronUp className="w-4 h-4 text-gray-500" />
                     )}
                   </button>
-                  <span className="font-bold text-l text-stone-800">확장하기</span>
+                  <span className="font-bold text-l text-stone-800">관점 확장하기</span>
                 </div>
                 <button
                   type="button"
