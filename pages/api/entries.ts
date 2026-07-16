@@ -294,36 +294,28 @@ export default async function handler(
       }
     }
 
-    // 5. 서머리 에이전트 호출 및 업데이트 (백그라운드 처리)
+    // 5. 서머리 에이전트 호출 및 업데이트
+    // 응답 이후의 비동기 작업은 서버리스 환경에서 실행이 보장되지 않으므로
+    // 요약 저장이 끝날 때까지 요청을 유지한다.
     if (entryResult && entryResult.length > 0) {
       const savedEntry = entryResult[0]
-      
-      // 서머리 에이전트를 백그라운드에서 실행
-      const runSummaryAgent = async () => {
-        try {
-          console.log('✅ 서머리 에이전트 호출 시작:', savedEntry.id)
-          
-          // 서머리 에이전트 호출
-          const summaryResult = await callSummaryAgent(
-            savedEntry.content_html,
-            savedEntry.id,
-            savedEntry.participant_code
-          )
-          
-          console.log('✅ 서머리 에이전트 결과:', summaryResult)
-          
-          // service_role을 사용하여 업데이트
-          await updateEntrySummary(savedEntry.id, summaryResult, supabase)
-          
-        } catch (error) {
-          console.error('❌ 서머리 에이전트 전체 프로세스 실패:', error)
-        }
+
+      try {
+        console.log('✅ 서머리 에이전트 호출 시작:', savedEntry.id)
+
+        const summaryResult = await callSummaryAgent(
+          savedEntry.content_html,
+          savedEntry.id,
+          savedEntry.participant_code
+        )
+
+        console.log('✅ 서머리 에이전트 결과:', summaryResult)
+
+        // service_role을 사용하여 업데이트
+        await updateEntrySummary(savedEntry.id, summaryResult, supabase)
+      } catch (error) {
+        console.error('❌ 서머리 에이전트 전체 프로세스 실패:', error)
       }
-      
-      // setTimeout을 사용하여 백그라운드에서 실행
-      setTimeout(() => {
-        runSummaryAgent()
-      }, 0)
     }
 
     res.status(200).json({ 
