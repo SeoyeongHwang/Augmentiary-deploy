@@ -159,9 +159,9 @@ export default function Home() {
 
   const getGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 6) return '밤이 깊었습니다'
+    if (hour < 6) return '밤이 깊었습니다.'
     if (hour < 12) return '오늘 하루 잘 시작하셨나요?'
-    if (hour < 18) return '안녕하세요'
+    if (hour < 18) return '안녕하세요.'
     return '오늘 하루는 어떠셨나요?'
   }
 
@@ -212,7 +212,7 @@ export default function Home() {
         {/* 인사말 */}
         <div className="mt-16 mb-8 text-center">
           <h1 className="text-4xl font-bold text-gray-900">
-            <span className="font-bold">{user.name}님</span>, {getGreeting()}.
+            <span className="font-bold">{user.name}님</span>, {getGreeting()}
           </h1>
         </div>
 
