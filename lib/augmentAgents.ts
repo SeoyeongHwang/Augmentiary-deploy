@@ -53,6 +53,7 @@ Your output must be a JSON object structured as follows:
           <Previous Context>: \n${diaryEntry}` },
         ],
         temperature: 0.3,
+        response_format: { type: 'json_object' },
       }),
     });
   
@@ -200,8 +201,11 @@ You must provide your response as valid, strictly structured JSON. The output mu
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
         ],
-        temperature: 0.7,
+        temperature: 0.9,
         top_p: 1.0,
+        presence_penalty: 0.6,
+        frequency_penalty: 0.3,
+        response_format: { type: 'json_object' },
       }),
     })
 
@@ -362,8 +366,9 @@ Return the exact same JSON structure as input, but with each "text" field contai
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
       ],
-      temperature: 0.5,
+      temperature: 0.8,
       top_p: 1.0,
+      response_format: { type: 'json_object' },
     }),
   });
 

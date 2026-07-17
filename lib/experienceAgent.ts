@@ -233,8 +233,11 @@ export async function callAutobiographicReasoningAgent(
         messages: [
           { role: 'system', content: systemPrompt },
         ],
-        temperature: 0.7,
-        top_p: 1.0
+        temperature: 0.9,
+        top_p: 1.0,
+        presence_penalty: 0.6,
+        frequency_penalty: 0.3,
+        response_format: { type: 'json_object' }
       }),
     })
 
@@ -339,8 +342,11 @@ export async function callPastContextAgent(
         messages: [
           { role: 'system', content: systemPrompt },
         ],
-        temperature: 0.7,
-        top_p: 1.0
+        temperature: 0.9,
+        top_p: 1.0,
+        presence_penalty: 0.6,
+        frequency_penalty: 0.3,
+        response_format: { type: 'json_object' }
       }),
     })
 
@@ -536,8 +542,9 @@ Return the exact same JSON structure as input, but with the description field co
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
         ],
-        temperature: 0.7,
+        temperature: 0.8,
         top_p: 1.0,
+        response_format: { type: 'json_object' },
       }),
     });
 
@@ -668,8 +675,9 @@ Return the exact same JSON structure as input, but with the description field co
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
         ],
-        temperature: 0.5,
+        temperature: 0.8,
         top_p: 1.0,
+        response_format: { type: 'json_object' },
       }),
     });
 
