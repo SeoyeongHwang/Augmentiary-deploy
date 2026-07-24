@@ -1,4 +1,7 @@
-export const OPENAI_MODEL = 'gpt-5.4-mini'
+export const OPENAI_MODELS = {
+  standard: 'gpt-5.4-mini',
+  lightweight: 'gpt-5.4-nano',
+} as const
 
 type JsonObject = Record<string, unknown>
 

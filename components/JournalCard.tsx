@@ -1,5 +1,6 @@
 import { Card } from './index'
 import { formatKSTStored } from '../lib/time'
+import { htmlToPlainText } from '../utils/sanitizeHtml'
 import { useEffect, useRef } from 'react'
 import VanillaTilt from 'vanilla-tilt'
 
@@ -36,15 +37,9 @@ export default function JournalCard({ id, title, content, createdAt, onClick }: 
     }
   }, [])
 
-  // HTML 태그 제거하고 텍스트만 추출
-  const stripHtml = (html: string) => {
-    const tmp = document.createElement('div')
-    tmp.innerHTML = html
-    return tmp.textContent || tmp.innerText || ''
-  }
-
   // 내용 미리보기 (100자 제한)
-  const preview = stripHtml(content).substring(0, 100) + (stripHtml(content).length > 100 ? '...' : '')
+  const plainText = htmlToPlainText(content)
+  const preview = plainText.substring(0, 100) + (plainText.length > 100 ? '...' : '')
 
   // 날짜 포맷팅 (KST 기준)
   const formatDate = (dateString: string) => {

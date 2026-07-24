@@ -90,7 +90,7 @@ async function signupHandler(
     }
   }
 
-  console.log('📝 회원가입 시도:', email, `[${requestId}]`)
+  console.log('📝 회원가입 시도', `[${requestId}]`)
 
   // 3. 이메일 중복 검사 (service_role로 직접 확인)
   const supabase = createAdminSupabaseClient()

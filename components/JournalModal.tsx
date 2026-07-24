@@ -1,6 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/24/outline"
 import { Card } from './index'
 import { formatKSTStored } from '../lib/time'
+import { sanitizeHtml } from '../utils/sanitizeHtml'
 
 type JournalModalProps = {
   isOpen: boolean
@@ -66,9 +67,9 @@ export default function JournalModal({ isOpen, onClose, title, content, createdA
                 </div>
               </div>
             ) : (
-              <div 
+              <div
                 className="prose prose-sm max-w-none leading-loose"
-                dangerouslySetInnerHTML={{ __html: content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
               />
             )}
           </div>

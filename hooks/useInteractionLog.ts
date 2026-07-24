@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { ActionType, CreateInteractionLogData } from '../types/log'
-import { logInteractionAsync, logInteractionSync } from '../lib/logger'
+import { logInteractionAsync } from '../lib/logger'
 import { useSession } from './useSession'
 
 /**
@@ -34,28 +34,6 @@ export function useInteractionLog(participantCode?: string) {
     }
 
     logInteractionAsync(logData)
-  }, [effectiveParticipantCode])
-
-  /**
-   * 동기 로그 기록 (즉시 저장, 중요한 액션용)
-   */
-  const logSync = useCallback(async (
-    actionType: ActionType,
-    meta?: Record<string, any>,
-    entryId?: string
-  ) => {
-    if (!effectiveParticipantCode || !entryId) {
-      return
-    }
-
-    const logData: CreateInteractionLogData = {
-      participant_code: effectiveParticipantCode,
-      action_type: actionType,
-      meta,
-      entry_id: entryId
-    }
-
-    await logInteractionSync(logData)
   }, [effectiveParticipantCode])
 
   /**
@@ -112,13 +90,6 @@ export function useInteractionLog(participantCode?: string) {
   const logStartWriting = useCallback((entryId: string) => {
     logAsync(ActionType.START_WRITING, undefined, entryId)
   }, [logAsync])
-
-  /**
-   * 로그아웃 로그 (entryId 필요 없음)
-   */
-  const logLogout = useCallback(() => {
-    logSync(ActionType.LOGOUT)
-  }, [logSync])
 
   /**
    * 경험 살펴보기 요청 로그
@@ -186,8 +157,7 @@ export function useInteractionLog(participantCode?: string) {
   return {
     // 기본 로그 함수들
     logAsync,
-    logSync,
-    
+
     // 특정 액션 로그 함수들
     logAITrigger,
     logAIReceive,
@@ -196,8 +166,7 @@ export function useInteractionLog(participantCode?: string) {
     logTriggerESM,
     logESMSubmit,
     logStartWriting,
-    logLogout,
-    
+
     // 경험 살펴보기 기능 로그 함수들
     logRequestRecord,
     logReceiveRecord,

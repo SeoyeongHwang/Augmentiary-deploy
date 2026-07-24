@@ -14,7 +14,7 @@ import {
 } from '../../../utils/supabase/server'
 import {
   getOpenAIChatCompletionText,
-  OPENAI_MODEL,
+  OPENAI_MODELS,
 } from '../../../lib/openai'
 
 interface SurveyData {
@@ -151,7 +151,7 @@ JSON 형식만 반환하고, 다른 텍스트는 포함하지 마세요.`
         'Authorization': `Bearer ${openaiApiKey}`
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.standard,
         messages: [
           {
             role: 'system',
@@ -255,13 +255,12 @@ async function generateProfileHandler(
   }
 
   // 6. 이미 프로필이 있는 경우 확인
-  console.log('🔍 API userData.profile 디버깅:', {
-    profile: userData.profile,
-    type: typeof userData.profile,
-    isString: typeof userData.profile === 'string',
-    isObject: typeof userData.profile === 'object'
+  console.log('🔍 API userData.profile 확인:', {
+    hasProfile: !!userData.profile,
+    type: typeof userData.profile
   }, `[${requestId}]`)
-  
+
+
   const hasProfile = userData.profile && 
     ((typeof userData.profile === 'string' && userData.profile.trim() !== '') ||
      (typeof userData.profile === 'object' && userData.profile !== null))

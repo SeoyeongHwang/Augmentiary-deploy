@@ -77,8 +77,6 @@ const extractUserProfileForResource = (userProfileInput: any) => {
         : fullProfile.future_ideal || {}
     };
     
-    console.log('📊 [EXTRACT] Mapped resource profile:', resourceProfile);
-    
     return JSON.stringify(resourceProfile, null, 2);
   } catch (error) {
     console.error('Error processing user profile:', error);
@@ -132,7 +130,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('📖 [STEP 1] Starting Direction Agent...');
     const directionAgentResult = await callDirectionAgent(diaryEntry, selectedText);
     console.log('✅ [STEP 1] Direction Agent completed:', {
-      reflective_summary: directionAgentResult.reflective_summary ? directionAgentResult.reflective_summary.substring(0, 100) + '...' : 'No summary',
       significance: directionAgentResult.significance,
       approaches: directionAgentResult.approaches
     });
@@ -152,27 +149,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       directionAgentResult.approaches
     );
 
-    console.log('✅ [STEP 2] Interpretive Agent completed:');
-    console.log('  Option 1:', {
-      title: interpretiveAgentResult.option1.title,
-      approach: interpretiveAgentResult.option1.approach,
-      resources: interpretiveAgentResult.option1.resource,
-      resource_usage: interpretiveAgentResult.option1.resource_usage,
-      text: interpretiveAgentResult.option1.text ? interpretiveAgentResult.option1.text.substring(0, 50) + '...' : 'No text'
-    });
-    console.log('  Option 2:', {
-      title: interpretiveAgentResult.option2.title,
-      approach: interpretiveAgentResult.option2.approach,
-      resources: interpretiveAgentResult.option2.resource,
-      resource_usage: interpretiveAgentResult.option2.resource_usage,
-      text: interpretiveAgentResult.option2.text ? interpretiveAgentResult.option2.text.substring(0, 50) + '...' : 'No text'
-    });
-    console.log('  Option 3:', {
-      title: interpretiveAgentResult.option3.title,
-      approach: interpretiveAgentResult.option3.approach,
-      resources: interpretiveAgentResult.option3.resource,
-      resource_usage: interpretiveAgentResult.option3.resource_usage,
-      text: interpretiveAgentResult.option3.text ? interpretiveAgentResult.option3.text.substring(0, 50) + '...' : 'No text'
+    console.log('✅ [STEP 2] Interpretive Agent completed:', {
+      approaches: [
+        interpretiveAgentResult.option1.approach,
+        interpretiveAgentResult.option2.approach,
+        interpretiveAgentResult.option3.approach,
+      ],
+      hasText: [
+        !!interpretiveAgentResult.option1.text,
+        !!interpretiveAgentResult.option2.text,
+        !!interpretiveAgentResult.option3.text,
+      ],
     });
 
     // Step 3: Scaffolding Agent
@@ -182,21 +169,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       interpretiveAgentResult
     );
 
-    console.log('✅ [STEP 3] Scaffolding Agent completed:');
-    console.log('  Option 1:', {
-      title: scaffoldingAgentResult.option1.title,
-      approach: scaffoldingAgentResult.option1.approach,
-      text: scaffoldingAgentResult.option1.text ? scaffoldingAgentResult.option1.text.substring(0, 50) + '...' : 'No text'
-    });
-    console.log('  Option 2:', {
-      title: scaffoldingAgentResult.option2.title,
-      approach: scaffoldingAgentResult.option2.approach,
-      text: scaffoldingAgentResult.option2.text ? scaffoldingAgentResult.option2.text.substring(0, 50) + '...' : 'No text'
-    });
-    console.log('  Option 3:', {
-      title: scaffoldingAgentResult.option3.title,
-      approach: scaffoldingAgentResult.option3.approach,
-      text: scaffoldingAgentResult.option3.text ? scaffoldingAgentResult.option3.text.substring(0, 50) + '...' : 'No text'
+    console.log('✅ [STEP 3] Scaffolding Agent completed:', {
+      hasText: [
+        !!scaffoldingAgentResult.option1.text,
+        !!scaffoldingAgentResult.option2.text,
+        !!scaffoldingAgentResult.option3.text,
+      ],
     });
 
     console.log('🎉 [AUGMENT] Complete augmentation pipeline finished successfully!');

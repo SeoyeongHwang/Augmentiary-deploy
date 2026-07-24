@@ -1,8 +1,8 @@
 // lib/augmentAgents.ts
 
 import { AIAgentResult, AIOption } from '../types/ai'
-import { getDirectionAgentApproachesPrompt, getAllApproachNames, getInterpretiveAgentApproachesPrompt, getApproachGuidelines } from './approaches'
-import { getOpenAIChatCompletionText, OPENAI_MODEL } from './openai'
+import { getDirectionAgentApproachesPrompt, getAllApproachNames, getApproachGuidelines } from './approaches'
+import { getOpenAIChatCompletionText, OPENAI_MODELS } from './openai'
 
 export async function callDirectionAgent(diaryEntry: string, selectedEntry: string): Promise<{ reflective_summary: string; significance: string; approaches: string[]; raw?: string }> {
     // OpenAI API 호출 예시
@@ -44,7 +44,7 @@ Your output must be a JSON object structured as follows:
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.standard,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `
@@ -58,17 +58,13 @@ Your output must be a JSON object structured as follows:
     });
   
     const textResult = await getOpenAIChatCompletionText(response);
-    
-    console.log('🔍 [DIRECTION AGENT] Raw OpenAI response:', textResult);
-    
+
     try {
         const jsonStart = textResult.indexOf('{');
         const jsonEnd = textResult.lastIndexOf('}');
         const jsonString = textResult.substring(jsonStart, jsonEnd + 1);
-        console.log('🔍 [DIRECTION AGENT] Extracted JSON string:', jsonString);
         const parsedResult = JSON.parse(jsonString);
-        console.log('🔍 [DIRECTION AGENT] Parsed result:', parsedResult);
-        
+
         // 필수 필드들을 체크하고 기본값 설정
         const safeResult = {
           reflective_summary: parsedResult.reflective_summary || 'Default reflective summary.',
@@ -196,7 +192,7 @@ You must provide your response as valid, strictly structured JSON. The output mu
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.standard,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
@@ -254,8 +250,6 @@ You must provide your response as valid, strictly structured JSON. The output mu
           finalJson = finalJson.replace(/,$/, '"');
         }
         
-        console.log('🔍 [INTERPRETIVE AGENT] Cleaned JSON:', finalJson.substring(0, 200) + '...');
-        
         // JSON 파싱 시도
         const parsedResult = JSON.parse(finalJson);
         
@@ -272,11 +266,8 @@ You must provide your response as valid, strictly structured JSON. The output mu
           option3: createAIOption(parsedResult.option3)
         };
         
-        console.log('✅ [INTERPRETIVE AGENT] Final result with resources:');
-        console.log('  Option 1 resources:', result.option1.resource);
-        console.log('  Option 2 resources:', result.option2.resource);
-        console.log('  Option 3 resources:', result.option3.resource);
-        
+        console.log('✅ [INTERPRETIVE AGENT] Parsed successfully');
+
         return result;
         
       } catch (err) {
@@ -361,7 +352,7 @@ Return the exact same JSON structure as input, but with each "text" field contai
       'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: OPENAI_MODEL,
+      model: OPENAI_MODELS.lightweight,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
@@ -411,8 +402,6 @@ Return the exact same JSON structure as input, but with each "text" field contai
       finalJson = finalJson.replace(/,$/, '"');
     }
     
-    console.log('🔍 [SCAFFOLDING AGENT] Cleaned JSON:', finalJson.substring(0, 200) + '...');
-    
     // JSON 파싱 시도
     const parsedResult = JSON.parse(finalJson);
     
@@ -429,11 +418,8 @@ Return the exact same JSON structure as input, but with each "text" field contai
       option3: createAIOption(parsedResult.option3)
     };
     
-    console.log('✅ [SCAFFOLDING AGENT] Final result with resources:');
-    console.log('  Option 1 text:', result.option1.text);
-    console.log('  Option 2 text:', result.option2.text);
-    console.log('  Option 3 text:', result.option3.text);
-    
+    console.log('✅ [SCAFFOLDING AGENT] Parsed successfully');
+
     return result;
     
   } catch (err) {
@@ -565,24 +551,6 @@ function extractFieldsWithRegex(textResult: string): AIAgentResult | null {
     console.error('❌ [REGEX FALLBACK] Extraction failed:', err);
     return null;
   }
-}
-
-function parseAIOptionFromMatch(match: RegExpMatchArray | null): AIOption {
-  if (!match) return createAIOption({});
-  
-  const optionText = match[1];
-  const approachMatch = optionText.match(/"approach":\s*"([^"]*)"/);
-  const titleMatch = optionText.match(/"title":\s*"([^"]*)"/);
-  const textMatch = optionText.match(/"text":\s*"([^"]*)"/);
-  
-  const approachValue = approachMatch ? approachMatch[1] : '';
-  
-  return {
-    approach: approachValue,
-    title: titleMatch ? titleMatch[1] : '',
-    text: textMatch ? textMatch[1] : '',
-    resource: []
-  };
 }
 
 function createDefaultAIAgentResult(): AIAgentResult {

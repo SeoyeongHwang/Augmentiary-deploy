@@ -1,7 +1,7 @@
 import {
   getOpenAIChatCompletionText,
   isOpenAIAPIError,
-  OPENAI_MODEL,
+  OPENAI_MODELS,
 } from './openai'
 
 // 서머리 에이전트 결과 타입 정의
@@ -45,7 +45,7 @@ export async function callSummaryAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.standard,
         messages: [
           { role: 'system', content: prompt },
           { role: 'user', content: `Diary content: \n${diaryContent}` },
@@ -97,8 +97,8 @@ export async function updateEntrySummary(
   supabaseClient: any
 ): Promise<void> {
   try {
-    console.log('🔄 업데이트 시작:', { entryId, summaryData })
-    
+    console.log('🔄 요약 업데이트 시작:', entryId)
+
     const { data, error } = await supabaseClient
       .from('entries')
       .update({
@@ -114,7 +114,6 @@ export async function updateEntrySummary(
       throw error
     } else {
       console.log('✅ 일기 요약 업데이트 성공:', entryId)
-      console.log('📝 업데이트된 데이터:', data)
     }
   } catch (error) {
     console.error('❌ 일기 요약 업데이트 중 오류:', error)

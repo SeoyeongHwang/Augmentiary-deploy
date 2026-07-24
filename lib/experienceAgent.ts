@@ -3,7 +3,7 @@
 import {
   getOpenAIChatCompletionText,
   isOpenAIAPIError,
-  OPENAI_MODEL,
+  OPENAI_MODELS,
 } from './openai'
 
 // 경험 분석 에이전트 결과 타입 정의
@@ -82,7 +82,7 @@ export async function callPastRecordAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.lightweight,
         messages: [
           { role: 'system', content: systemPrompt },
         ],
@@ -229,7 +229,7 @@ export async function callAutobiographicReasoningAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.standard,
         messages: [
           { role: 'system', content: systemPrompt },
         ],
@@ -338,7 +338,7 @@ export async function callPastContextAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.standard,
         messages: [
           { role: 'system', content: systemPrompt },
         ],
@@ -446,7 +446,7 @@ export async function callPastContextRelevanceAgent(
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.lightweight,
         messages: [
           { role: 'system', content: systemPrompt },
         ],
@@ -537,7 +537,7 @@ Return the exact same JSON structure as input, but with the description field co
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.lightweight,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
@@ -587,8 +587,6 @@ Return the exact same JSON structure as input, but with the description field co
         finalJson = finalJson.replace(/,$/, '"');
       }
       
-      console.log('🔍 [EXPERIENCE SCAFFOLDING AGENT] Cleaned JSON:', finalJson.substring(0, 200) + '...');
-      
       // JSON 파싱
       const parsedResult = JSON.parse(finalJson);
       
@@ -599,12 +597,8 @@ Return the exact same JSON structure as input, but with the description field co
         entry_id: parsedResult.entry_id || originalResult.entry_id
       };
       
-      console.log('✅ [EXPERIENCE SCAFFOLDING AGENT] Final result:', {
-        strategy: result.strategy,
-        description: result.description.substring(0, 100) + '...',
-        entry_id: result.entry_id
-      });
-      
+      console.log('✅ [EXPERIENCE SCAFFOLDING AGENT] Parsed successfully:', result.entry_id);
+
       return result;
       
     } catch (err) {
@@ -670,7 +664,7 @@ Return the exact same JSON structure as input, but with the description field co
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
+        model: OPENAI_MODELS.lightweight,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
@@ -720,8 +714,6 @@ Return the exact same JSON structure as input, but with the description field co
         finalJson = finalJson.replace(/,$/, '"');
       }
       
-      console.log('🔍 [PAST CONTEXT SCAFFOLDING AGENT] Cleaned JSON:', finalJson.substring(0, 200) + '...');
-      
       // JSON 파싱
       const parsedResult = JSON.parse(finalJson);
       
@@ -732,12 +724,8 @@ Return the exact same JSON structure as input, but with the description field co
         entry_id: parsedResult.entry_id || originalResult.entry_id
       };
       
-      console.log('✅ [PAST CONTEXT SCAFFOLDING AGENT] Final result:', {
-        strategy: result.strategy,
-        description: result.description.substring(0, 100) + '...',
-        entry_id: result.entry_id
-      });
-      
+      console.log('✅ [PAST CONTEXT SCAFFOLDING AGENT] Parsed successfully:', result.entry_id);
+
       return result;
       
     } catch (err) {

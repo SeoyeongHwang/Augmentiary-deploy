@@ -22,12 +22,21 @@ export function useSession() {
         cache: 'no-store',
       })
 
-      const data = await response.json()
-
-      if (!response.ok || !data.data?.isLoggedIn) {
+      // 401(세션 만료/무효)일 때만 로그아웃 처리한다.
+      // 일시적 네트워크 오류나 서버 오류(5xx)로 user를 지우면
+      // 작성 중이던 일기가 로그인 페이지 리다이렉트로 유실될 수 있다.
+      if (response.status === 401) {
         setUser(null)
         setLoading(false)
         return { success: false, needsLogin: true }
+      }
+
+      const data = await response.json().catch(() => null)
+
+      if (!response.ok || !data?.data?.isLoggedIn) {
+        // 세션 상태를 확정할 수 없으므로 기존 user 상태는 유지
+        setLoading(false)
+        return { success: false, needsLogin: false }
       }
 
       setUser(data.data.user)
@@ -35,9 +44,9 @@ export function useSession() {
       return { success: true, needsLogin: false }
     } catch (error) {
       console.error('세션 체크 중 오류:', error)
-      setUser(null)
+      // 네트워크 오류 — 기존 user 상태 유지
       setLoading(false)
-      return { success: false, needsLogin: true }
+      return { success: false, needsLogin: false }
     }
   }, [])
 

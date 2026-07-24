@@ -70,24 +70,3 @@ export function calculateEditRatio(originalText: string, currentText: string): n
   
   return normalizedRatio
 }
-
-/**
- * AI 텍스트 요소의 수정 비율 업데이트
- * @param element - AI 텍스트 요소
- * @param originalText - 원본 텍스트
- * @param currentText - 현재 텍스트
- */
-export function updateAITextEditRatio(
-  element: HTMLElement, 
-  originalText: string, 
-  currentText: string
-): void {
-  const editRatio = calculateEditRatio(originalText, currentText)
-  element.setAttribute('edit-ratio', editRatio.toString())
-}
-
-// 기존 함수는 호환성을 위해 유지하되 내부적으로 새로운 함수 사용
-export function calculateEditCount(originalText: string, currentText: string): number {
-  const ratio = calculateEditRatio(originalText, currentText)
-  return Math.round(ratio * 5) // 0-5 범위로 변환 (기존 호환성)
-}

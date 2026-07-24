@@ -1,22 +1,21 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { ArrowLeftIcon } from "@heroicons/react/24/outline"
-import { TiptapEditor2, Button, ESMModal } from '../components'
+import { Button, ESMModal } from '../components'
+import TiptapEditor2 from '../components/TiptapEditor2'
 import ConfirmModal from '../components/ConfirmModal'
-import { LogStatus } from '../components/LogStatus'
 import type { ESMData } from '../components/ESMModal'
 import type { CreateESMResponseData } from '../types/esm'
-import type { CreateEntryData } from '../types/entry'
 import { getCurrentKST } from '../lib/time'
 
 import { useInteractionLog } from '../hooks/useInteractionLog'
 import { useSession } from '../hooks/useSession'
 import { generateEntryId } from '../utils/entry'
-import { getQueuedLogsForServerSide } from '../lib/logger'
-import { getQueuedAIPromptsForServerSide } from '../utils/aiPromptQueue'
+import { getQueuedLogsForServerSide, requeueLogs } from '../lib/logger'
+import { getQueuedAIPromptsForServerSide, requeueAIPrompts } from '../utils/aiPromptQueue'
 
 export default function Write() {
-  const { user, loading, refreshSession, checkSession } = useSession()
+  const { user, loading, checkSession } = useSession()
   const [participantCode, setParticipantCode] = useState<string | null>(null)
   const [entryId, setEntryId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
@@ -222,6 +221,10 @@ export default function Write() {
     }
 
     // 데이터베이스 저장 시도
+    // 저장 실패 시 큐에 되돌릴 수 있도록 try 밖에 선언
+    let queuedLogs: ReturnType<typeof getQueuedLogsForServerSide> = []
+    let queuedPrompts: ReturnType<typeof getQueuedAIPromptsForServerSide> = []
+
     try {
       if (!user) {
         console.error('❌ 사용자 정보 없음')
@@ -275,11 +278,11 @@ export default function Write() {
       }
       
       // 큐에 있는 로그와 AI 프롬프트 데이터 가져오기
-      const logsData = getQueuedLogsForServerSide()
-      const aiPromptsData = getQueuedAIPromptsForServerSide()
-      
+      queuedLogs = getQueuedLogsForServerSide()
+      queuedPrompts = getQueuedAIPromptsForServerSide()
+
       // AI 프롬프트 데이터를 서버에서 처리할 수 있도록 변환
-      const processedAIPromptsData = aiPromptsData.map(prompt => ({
+      const processedAIPromptsData = queuedPrompts.map(prompt => ({
         ...prompt,
         ai_suggestion: (() => {
           // 이미 문자열인 경우 파싱 후 다시 문자열로 변환 (이중 인코딩 방지)
@@ -403,7 +406,7 @@ export default function Write() {
         body: JSON.stringify({
           entryData: insertData,
           esmData: esmDataToInsert,
-          logsData: logsData,
+          logsData: queuedLogs,
           aiPromptsData: processedAIPromptsData,
           additionalMetrics: finalMetrics
         })
@@ -440,6 +443,14 @@ export default function Write() {
       await router.push('/')
       
     } catch (error) {
+      // 서버 저장에 실패한 로그·프롬프트는 큐에 되돌려 다음 시도에 다시 전송
+      if (queuedLogs.length > 0) {
+        requeueLogs(queuedLogs)
+      }
+      if (queuedPrompts.length > 0) {
+        requeueAIPrompts(queuedPrompts)
+      }
+
       console.error('저장 중 오류')
       console.error('❌ 저장 중 오류 상세:', {
         name: error instanceof Error ? error.name : 'Unknown',

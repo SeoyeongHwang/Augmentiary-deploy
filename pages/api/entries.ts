@@ -52,6 +52,20 @@ export default async function handler(
       return res.status(400).json({ error: 'Entry 데이터가 허용 크기를 초과했습니다.' })
     }
 
+    // ESM 응답 검증 (DB에 어떤 것도 쓰기 전에 모든 입력을 검증한다)
+    const esmFields = ['SL', 'SO', 'REF1', 'REF2', 'RUM1', 'RUM2', 'THK1', 'THK2'] as const
+    const hasValidEsmData =
+      esmData &&
+      esmFields.every(
+        (field) =>
+          typeof esmData[field] === 'number' &&
+          Number.isFinite(esmData[field])
+      )
+
+    if (!hasValidEsmData) {
+      return res.status(400).json({ error: 'ESM 응답 값이 올바르지 않습니다.' })
+    }
+
     const { data: existingEntry, error: existingEntryError } = await supabase
       .from('entries')
       .select('participant_code')
@@ -178,8 +192,6 @@ export default async function handler(
       
       console.log('📊 [API] 최종 저장 데이터 요약:', {
         id: finalEntryData.id,
-        participant_code: finalEntryData.participant_code,
-        title: finalEntryData.title?.substring(0, 20) + '...',
         content_length: finalEntryData.content_html?.length || 0,
         ...logSafeMetrics
       })
@@ -196,50 +208,12 @@ export default async function handler(
 
     if (entryError) {
       console.error('❌ Entry 저장 실패:', entryError)
-      return res.status(500).json({ 
-        error: 'Entry 저장 실패', 
-        details: entryError 
-      })
+      return res.status(500).json({ error: 'Entry 저장 실패' })
     }
-    
-    // 저장 결과를 안전하게 로그 출력
-    if (entryResult && entryResult.length > 0) {
-      const savedEntry = entryResult[0];
-      console.log('✅ [API] Entry 저장 성공:', {
-        id: savedEntry.id,
-        participant_code: savedEntry.participant_code,
-        title: savedEntry.title?.substring(0, 30) + '...',
-        left_panel_requests: savedEntry.left_panel_requests,
-        right_panel_requests: savedEntry.right_panel_requests,
-        left_panel_insertions: savedEntry.left_panel_insertions,
-        right_panel_insertions: savedEntry.right_panel_insertions,
-        syllable_count: savedEntry.syllable_count,
-        ai_texts_added_count: (() => {
-          try {
-            return savedEntry.ai_texts_added ? JSON.parse(savedEntry.ai_texts_added).length : 0;
-          } catch (e) {
-            return 0;
-          }
-        })()
-      });
-    } else {
-      console.log('✅ [API] Entry 저장 성공 (결과 없음)');
-    }
+
+    console.log('✅ [API] Entry 저장 성공:', entryResult?.[0]?.id)
 
     // 2. ESM 응답 저장
-    const esmFields = ['SL', 'SO', 'REF1', 'REF2', 'RUM1', 'RUM2', 'THK1', 'THK2'] as const
-    const hasValidEsmData =
-      esmData &&
-      esmFields.every(
-        (field) =>
-          typeof esmData[field] === 'number' &&
-          Number.isFinite(esmData[field])
-      )
-
-    if (!hasValidEsmData) {
-      return res.status(400).json({ error: 'ESM 응답 값이 올바르지 않습니다.' })
-    }
-
     const ownedEsmData = {
       participant_code: participantCode,
       entry_id: entryData.id,
@@ -254,43 +228,60 @@ export default async function handler(
 
     if (esmError) {
       console.error('❌ ESM 저장 실패:', esmError)
-      return res.status(500).json({ 
-        error: 'ESM 저장 실패', 
-        details: esmError 
-      })
+      return res.status(500).json({ error: 'ESM 저장 실패' })
     }
 
     // 3. 로그 데이터 저장 (있는 경우)
+    // 클라이언트가 임의 컬럼을 주입하지 못하도록 허용된 필드만 추려서 저장한다
     if (Array.isArray(logsData) && logsData.length > 0) {
-      const ownedLogsData = logsData.map((log: any) => ({
-        ...log,
-        participant_code: participantCode,
-        entry_id: entryData.id,
-      }))
-      const { error: logsError } = await supabase
-        .from('interaction_logs')
-        .insert(ownedLogsData)
-      
-      if (logsError) {
-        console.error('❌ 로그 저장 실패:', logsError)
-        // 로그 저장 실패는 전체 프로세스를 중단하지 않음
+      const ownedLogsData = logsData
+        .filter((log: any) => log && typeof log.action_type === 'string')
+        .map((log: any) => ({
+          participant_code: participantCode,
+          entry_id: entryData.id,
+          action_type: log.action_type,
+          meta: log.meta && typeof log.meta === 'object' ? log.meta : null,
+          timestamp:
+            typeof log.timestamp === 'string' ? log.timestamp : getCurrentKST(),
+        }))
+      if (ownedLogsData.length > 0) {
+        const { error: logsError } = await supabase
+          .from('interaction_logs')
+          .insert(ownedLogsData)
+
+        if (logsError) {
+          console.error('❌ 로그 저장 실패:', logsError)
+          // 로그 저장 실패는 전체 프로세스를 중단하지 않음
+        }
       }
     }
 
     // 4. AI 프롬프트 데이터 저장 (있는 경우)
     if (Array.isArray(aiPromptsData) && aiPromptsData.length > 0) {
-      const ownedAIPromptsData = aiPromptsData.map((prompt: any) => ({
-        ...prompt,
-        participant_code: participantCode,
-        entry_id: entryData.id,
-      }))
-      const { error: aiPromptsError } = await supabase
-        .from('ai_prompts')
-        .insert(ownedAIPromptsData)
-      
-      if (aiPromptsError) {
-        console.error('❌ AI 프롬프트 저장 실패:', aiPromptsError)
-        // AI 프롬프트 저장 실패는 전체 프로세스를 중단하지 않음
+      const ownedAIPromptsData = aiPromptsData
+        .filter((prompt: any) => prompt && typeof prompt.selected_text === 'string')
+        .map((prompt: any) => ({
+          participant_code: participantCode,
+          entry_id: entryData.id,
+          selected_text: prompt.selected_text,
+          ai_suggestion:
+            typeof prompt.ai_suggestion === 'string'
+              ? prompt.ai_suggestion
+              : safeStringify(prompt.ai_suggestion ?? null),
+          created_at:
+            typeof prompt.created_at === 'string'
+              ? prompt.created_at
+              : getCurrentKST(),
+        }))
+      if (ownedAIPromptsData.length > 0) {
+        const { error: aiPromptsError } = await supabase
+          .from('ai_prompts')
+          .insert(ownedAIPromptsData)
+
+        if (aiPromptsError) {
+          console.error('❌ AI 프롬프트 저장 실패:', aiPromptsError)
+          // AI 프롬프트 저장 실패는 전체 프로세스를 중단하지 않음
+        }
       }
     }
 
@@ -309,7 +300,7 @@ export default async function handler(
           savedEntry.participant_code
         )
 
-        console.log('✅ 서머리 에이전트 결과:', summaryResult)
+        console.log('✅ 서머리 에이전트 완료:', savedEntry.id)
 
         // service_role을 사용하여 업데이트
         await updateEntrySummary(savedEntry.id, summaryResult, supabase)
@@ -328,9 +319,6 @@ export default async function handler(
 
   } catch (error) {
     console.error('❌ 서버 오류:', error)
-    res.status(500).json({ 
-      error: '서버 오류', 
-      details: error instanceof Error ? error.message : 'Unknown error' 
-    })
+    res.status(500).json({ error: '서버 오류' })
   }
 }

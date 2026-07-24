@@ -26,7 +26,6 @@ export enum ErrorCode {
 export interface ErrorResponse {
   error: string
   code: string
-  details?: any
   timestamp: string
   requestId?: string
 }
@@ -107,10 +106,8 @@ export function sendErrorResponse(
     requestId
   }
 
-  if (error.details) {
-    errorResponse.details = error.details
-  }
-
+  // details는 내부 정보(DB 에러 등)를 담을 수 있으므로 서버 로그에만 남기고
+  // 클라이언트 응답에는 포함하지 않는다
   // 에러 로깅
   console.error(`❌ API 에러 [${error.code}]:`, {
     message: error.message,

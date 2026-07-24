@@ -55,7 +55,7 @@ async function loginHandler(
     return sendErrorResponse(res, passwordError, requestId)
   }
 
-  console.log('🔐 로그인 시도:', email, `[${requestId}]`)
+  console.log('🔐 로그인 시도', `[${requestId}]`)
 
   // 3. Supabase 인증
   const supabaseAuth = createServerSupabaseClient(req, res)

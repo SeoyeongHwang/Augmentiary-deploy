@@ -68,7 +68,7 @@ async function experienceHandler(
     return sendErrorResponse(res, validationError, requestId)
   }
 
-  console.log('✅ 경험 떠올리기 - 선택된 텍스트:', selectedText.substring(0, 100), `[${requestId}]`)
+  console.log('✅ 경험 떠올리기 - 선택된 텍스트 길이:', selectedText.length, `[${requestId}]`)
 
   // 3. 현재 엔트리를 제외한 이전 엔트리들 조회
   let query = supabase
@@ -211,7 +211,7 @@ async function experienceHandler(
         .eq('participant_code', participantCode)
         .single()
 
-      console.log('🔍 사용자 프로필 조회 결과:', { userProfile, profileError }, `[${requestId}]`)
+      console.log('🔍 사용자 프로필 조회 결과:', { hasProfile: !!userProfile?.profile, hasError: !!profileError }, `[${requestId}]`)
 
       if (profileError) {
         console.error('❌ 사용자 프로필 조회 실패:', profileError, `[${requestId}]`)
@@ -238,13 +238,12 @@ async function experienceHandler(
           pastContext = profile.personal_life_context?.past
         }
 
-        console.log('🔍 과거 맥락 정보:', { 
+        console.log('🔍 과거 맥락 정보:', {
           profileExists: !!profile,
           profileType: typeof userProfile.profile,
           personalLifeContextExists: !!profile?.personal_life_context,
           pastContextExists: !!pastContext,
-          pastContextLength: pastContext?.length || 0,
-          rawProfile: userProfile.profile
+          pastContextLength: pastContext?.length || 0
         }, `[${requestId}]`)
 
         if (pastContext) {
@@ -252,8 +251,8 @@ async function experienceHandler(
           
           // 먼저 과거 맥락과의 연관성 분석
           const relevanceAnalysis = await callPastContextRelevanceAgent(selectedText, pastContext)
-          
-          console.log('🔍 과거 맥락 연관성 분석 결과:', relevanceAnalysis, `[${requestId}]`)
+
+          console.log('🔍 과거 맥락 연관성 분석 결과:', relevanceAnalysis.relevance, `[${requestId}]`)
           
           // 연관성이 0.4 이상일 때만 과거 맥락 카드 생성
           if (relevanceAnalysis.relevance >= 0.4) {
@@ -263,8 +262,8 @@ async function experienceHandler(
             
             console.log('🌱 [STEP 2] 과거 맥락 스캐폴딩 시작', `[${requestId}]`)
             const scaffoldedPastContextResult = await callPastContextScaffoldingAgent(pastContextResult, selectedText)
-            
-            console.log('🔍 과거 맥락 스캐폴딩 결과:', scaffoldedPastContextResult, `[${requestId}]`)
+
+            console.log('🔍 과거 맥락 스캐폴딩 완료', `[${requestId}]`)
             
             const pastContextCard = {
               id: 'past_context',
@@ -281,11 +280,7 @@ async function experienceHandler(
             }
 
             finalExperiences = [...experiencesWithDescriptions, pastContextCard]
-            console.log('✅ 과거 맥락 카드 추가됨 (연관성 충족):', {
-              ...pastContextCard,
-              relevance: relevanceAnalysis.relevance, // 연관성 값 별도 표시
-              note: 'similarity 필드에 연관성 값이 저장됨'
-            }, `[${requestId}]`)
+            console.log('✅ 과거 맥락 카드 추가됨 (연관성:', relevanceAnalysis.relevance, ')', `[${requestId}]`)
           } else {
             console.log('⚠️ 과거 맥락 연관성 부족으로 카드 생성 건너뜀 (연관성:', relevanceAnalysis.relevance, ')', `[${requestId}]`)
           }
