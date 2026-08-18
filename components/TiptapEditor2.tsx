@@ -1620,7 +1620,7 @@ export default function Editor({
       <div className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit pb-4 overflow-visible order-2 lg:order-1 ${
         experienceOptions && experienceVisible && !experienceCollapsed ? 'lg:h-full lg:overflow-hidden' : 'lg:overflow-visible'
       }`}>
-        <div className={`px-0 lg:px-3 lg:pb-10 space-y-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
+        <div className={`px-0 lg:px-3 lg:pb-10 space-y-4 [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
           experienceOptions && experienceVisible && !experienceCollapsed ? 'lg:flex-1 lg:overflow-y-auto' : ''
         }`}>
         {/* 경험 관련 결과 */}
@@ -1689,33 +1689,29 @@ export default function Editor({
                   return (
                     <div
                       key={experience.id || index}
-                      className={`relative w-full bg-white border border-stone-200 rounded-lg p-4 mb-2 ${
-                        isCardCollapsed ? 'cursor-pointer transition-colors duration-150 hover:bg-stone-50' : ''
-                      }`}
+                      className="w-full bg-white border border-stone-200 rounded-lg p-4 mb-2"
                     >
-                      <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="group flex w-full items-center gap-2 rounded-md text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+                        onClick={() => setExperienceCardCollapsed(prev => ({
+                          ...prev,
+                          [cardId]: !prev[cardId]
+                        }))}
+                        aria-expanded={!isCardCollapsed}
+                        aria-controls={`${cardId}-content`}
+                        aria-label={isCardCollapsed ? "제안 펼치기" : "제안 접기"}
+                        title={isCardCollapsed ? "펼치기" : "접기"}
+                      >
                         <SuggestionTitle title={experience.strategy || '이전 경험 떠올려보기'} />
-                        <button
-                          type="button"
-                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 ${
-                            isCardCollapsed ? 'after:absolute after:inset-0 after:rounded-lg' : ''
-                          }`}
-                          onClick={() => setExperienceCardCollapsed(prev => ({
-                            ...prev,
-                            [cardId]: !prev[cardId]
-                          }))}
-                          aria-expanded={!isCardCollapsed}
-                          aria-controls={`${cardId}-content`}
-                          aria-label={isCardCollapsed ? "제안 펼치기" : "제안 접기"}
-                          title={isCardCollapsed ? "펼치기" : "접기"}
-                        >
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-[background-color,transform] duration-150 group-hover:bg-stone-100 group-active:scale-[0.96]">
                           {isCardCollapsed ? (
                             <ChevronDown className="w-4 h-4 text-gray-500" />
                           ) : (
                             <ChevronUp className="w-4 h-4 text-gray-500" />
                           )}
-                        </button>
-                      </div>
+                        </span>
+                      </button>
                       <div id={`${cardId}-content`} className={`transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${
                         isCardCollapsed ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'
                       }`}>
@@ -1952,7 +1948,7 @@ export default function Editor({
       <aside className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit px-0 pb-4 overflow-visible order-3 lg:order-3 ${
         (bubbleMenuOptions || augmentOptions) && augmentVisible && !augmentCollapsed ? 'lg:h-full lg:overflow-hidden' : 'lg:overflow-visible'
       }`}>
-        <div className={`px-0 lg:pb-10 space-y-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
+        <div className={`px-0 lg:pr-3 lg:pb-10 space-y-4 [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
           (bubbleMenuOptions || augmentOptions) && augmentVisible && !augmentCollapsed ? 'lg:flex-1 lg:overflow-y-auto' : ''
         }`}>
           {/* <Button onClick={handleAugment} disabled={loading} className="px-4 py-2 rounded">
@@ -2034,33 +2030,29 @@ export default function Editor({
                     return (
                       <div
                         key={option.index}
-                        className={`relative w-full bg-white border border-stone-300 rounded-lg p-4 mb-2 ${
-                          isCardCollapsed ? 'cursor-pointer transition-colors duration-150 hover:bg-stone-50' : ''
-                        }`}
+                        className="w-full bg-white border border-stone-300 rounded-lg p-4 mb-2"
                       >
-                        <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="group flex w-full items-center gap-2 rounded-md text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+                          onClick={() => setAugmentCardCollapsed(prev => ({
+                            ...prev,
+                            [cardId]: !prev[cardId]
+                          }))}
+                          aria-expanded={!isCardCollapsed}
+                          aria-controls={`${cardId}-content`}
+                          aria-label={isCardCollapsed ? "제안 펼치기" : "제안 접기"}
+                          title={isCardCollapsed ? "펼치기" : "접기"}
+                        >
                           <SuggestionTitle title={option.title || `생각 ${option.index + 1}`} />
-                          <button
-                            type="button"
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 ${
-                              isCardCollapsed ? 'after:absolute after:inset-0 after:rounded-lg' : ''
-                            }`}
-                            onClick={() => setAugmentCardCollapsed(prev => ({
-                              ...prev,
-                              [cardId]: !prev[cardId]
-                            }))}
-                            aria-expanded={!isCardCollapsed}
-                            aria-controls={`${cardId}-content`}
-                            aria-label={isCardCollapsed ? "제안 펼치기" : "제안 접기"}
-                            title={isCardCollapsed ? "펼치기" : "접기"}
-                          >
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-[background-color,transform] duration-150 group-hover:bg-stone-100 group-active:scale-[0.96]">
                             {isCardCollapsed ? (
                               <ChevronDown className="w-4 h-4 text-gray-500" />
                             ) : (
                               <ChevronUp className="w-4 h-4 text-gray-500" />
                             )}
-                          </button>
-                        </div>
+                          </span>
+                        </button>
                         <div id={`${cardId}-content`} className={`transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${
                           isCardCollapsed ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'
                         }`}>
