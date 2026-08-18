@@ -32,6 +32,31 @@ const namum = Nanum_Myeongjo({
     weight: ['400', '700', '800'],
   })
 
+// 제안 제목 선두의 이모지(변형 선택자·ZWJ·피부톤 조합 포함) 매칭
+// tsconfig target(ES2017)에서 리터럴의 \p{...} 구문을 허용하지 않아 생성자 사용
+const LEADING_EMOJI_PATTERN = new RegExp(
+  '^([\\p{Extended_Pictographic}\\u{FE0F}\\u{200D}\\u{1F3FB}-\\u{1F3FF}]+)\\s*',
+  'u'
+)
+
+// 제안 카드 제목: 이모지를 불렛처럼 분리해, 제목이 두 줄 이상으로 줄바꿈되어도
+// 텍스트가 이모지 아래로 침범하지 않고 자체 영역 안에서만 줄바꿈되도록 렌더링
+function SuggestionTitle({ title }: { title: string }) {
+  const normalizedTitle = title.trimStart()
+  const match = normalizedTitle.match(LEADING_EMOJI_PATTERN)
+  const emoji = match ? match[1] : ''
+  const text = match ? normalizedTitle.slice(match[0].length) : normalizedTitle
+
+  return (
+    <span className="flex min-w-0 flex-1 items-start gap-x-2 font-bold text-l text-gray-900">
+      {emoji && <span className="block shrink-0 leading-normal">{emoji}</span>}
+      <span className="min-w-0 flex-1 break-keep text-balance leading-normal [overflow-wrap:anywhere]">
+        {text}
+      </span>
+    </span>
+  )
+}
+
 export default function Editor({ 
   userId, 
   entryId,
@@ -1658,15 +1683,24 @@ export default function Editor({
                   return (
                     <div
                       key={experience.id || index}
-                      className="w-full bg-white border border-stone-200 rounded-lg p-4 mb-2"
+                      className={`relative w-full bg-white border border-stone-200 rounded-lg p-4 mb-2 ${
+                        isCardCollapsed ? 'cursor-pointer transition-colors duration-150 hover:bg-stone-50' : ''
+                      }`}
                     >
                       <div className="flex items-center gap-2">
-                        <button 
-                          className="p-1 hover:bg-stone-100 rounded transition-colors flex items-center justify-center"
+                        <SuggestionTitle title={experience.strategy || '이전 경험 떠올려보기'} />
+                        <button
+                          type="button"
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 ${
+                            isCardCollapsed ? 'after:absolute after:inset-0 after:rounded-lg' : ''
+                          }`}
                           onClick={() => setExperienceCardCollapsed(prev => ({
                             ...prev,
                             [cardId]: !prev[cardId]
                           }))}
+                          aria-expanded={!isCardCollapsed}
+                          aria-controls={`${cardId}-content`}
+                          aria-label={isCardCollapsed ? "제안 펼치기" : "제안 접기"}
                           title={isCardCollapsed ? "펼치기" : "접기"}
                         >
                           {isCardCollapsed ? (
@@ -1675,9 +1709,8 @@ export default function Editor({
                             <ChevronUp className="w-4 h-4 text-gray-500" />
                           )}
                         </button>
-                        <span className="font-bold text-l text-gray-900">{experience.strategy || '이전 경험 떠올려보기'}</span>
                       </div>
-                      <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                      <div id={`${cardId}-content`} className={`transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${
                         isCardCollapsed ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'
                       }`}>
                         <div className="text-gray-800 text-[15px] leading-relaxed my-3">
@@ -1995,15 +2028,24 @@ export default function Editor({
                     return (
                       <div
                         key={option.index}
-                        className="w-full bg-white border border-stone-300 rounded-lg p-4 mb-2"
+                        className={`relative w-full bg-white border border-stone-300 rounded-lg p-4 mb-2 ${
+                          isCardCollapsed ? 'cursor-pointer transition-colors duration-150 hover:bg-stone-50' : ''
+                        }`}
                       >
                         <div className="flex items-center gap-2">
-                          <button 
-                            className="p-1 hover:bg-stone-100 rounded transition-colors flex items-center justify-center"
+                          <SuggestionTitle title={option.title || `생각 ${option.index + 1}`} />
+                          <button
+                            type="button"
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 ${
+                              isCardCollapsed ? 'after:absolute after:inset-0 after:rounded-lg' : ''
+                            }`}
                             onClick={() => setAugmentCardCollapsed(prev => ({
                               ...prev,
                               [cardId]: !prev[cardId]
                             }))}
+                            aria-expanded={!isCardCollapsed}
+                            aria-controls={`${cardId}-content`}
+                            aria-label={isCardCollapsed ? "제안 펼치기" : "제안 접기"}
                             title={isCardCollapsed ? "펼치기" : "접기"}
                           >
                             {isCardCollapsed ? (
@@ -2012,9 +2054,8 @@ export default function Editor({
                               <ChevronUp className="w-4 h-4 text-gray-500" />
                             )}
                           </button>
-                          <span className="font-bold text-l text-gray-900">{option.title || `생각 ${option.index + 1}`}</span>
                         </div>
-                        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                        <div id={`${cardId}-content`} className={`transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${
                           isCardCollapsed ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'
                         }`}>
                           {/* {option.strategy && (
