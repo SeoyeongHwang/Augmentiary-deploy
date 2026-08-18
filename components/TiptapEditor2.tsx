@@ -71,7 +71,7 @@ function SuggestionAccordionHeader({
     return (
       <button
         type="button"
-        className="group relative -mx-4 -my-2 flex min-h-14 w-[calc(100%+2rem)] cursor-pointer items-center rounded-lg px-4 py-4 pr-14 text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-400"
+        className="group relative -mx-4 -my-2 flex min-h-14 w-[calc(100%+2rem)] cursor-pointer items-center rounded-lg px-4 py-3 pr-14 text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-400"
         onClick={onToggle}
         aria-expanded={false}
         aria-controls={contentId}
@@ -87,7 +87,7 @@ function SuggestionAccordionHeader({
   }
 
   return (
-    <div className="relative flex min-h-10 w-full items-center py-2 pr-12">
+    <div className="relative flex min-h-10 w-full items-center py-1 pr-12">
       <SuggestionTitle title={title} />
       <button
         type="button"
