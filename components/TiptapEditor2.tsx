@@ -1689,13 +1689,17 @@ export default function Editor({
                   return (
                     <div
                       key={experience.id || index}
-                      className={`w-full bg-white border border-stone-200 rounded-lg px-4 mb-2 ${
+                      className={`w-full overflow-hidden bg-white border border-stone-200 rounded-lg px-4 mb-2 ${
                         isCardCollapsed ? 'py-2' : 'py-4'
                       }`}
                     >
                       <button
                         type="button"
-                        className="group flex w-full items-center gap-2 rounded-md text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+                        className={`group flex cursor-pointer items-center gap-2 text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-400 ${
+                          isCardCollapsed
+                            ? '-mx-4 -my-2 w-[calc(100%+2rem)] rounded-lg px-4 py-2'
+                            : 'w-full rounded-md'
+                        }`}
                         onClick={() => setExperienceCardCollapsed(prev => ({
                           ...prev,
                           [cardId]: !prev[cardId]
@@ -1706,7 +1710,7 @@ export default function Editor({
                         title={isCardCollapsed ? "펼치기" : "접기"}
                       >
                         <SuggestionTitle title={experience.strategy || '이전 경험 떠올려보기'} />
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-[background-color,transform] duration-150 group-hover:bg-stone-100 group-active:scale-[0.96]">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center transition-transform duration-150 group-active:scale-[0.96]">
                           {isCardCollapsed ? (
                             <ChevronDown className="w-4 h-4 text-gray-500" />
                           ) : (
@@ -2032,13 +2036,17 @@ export default function Editor({
                     return (
                       <div
                         key={option.index}
-                        className={`w-full bg-white border border-stone-300 rounded-lg px-4 mb-2 ${
+                        className={`w-full overflow-hidden bg-white border border-stone-300 rounded-lg px-4 mb-2 ${
                           isCardCollapsed ? 'py-2' : 'py-4'
                         }`}
                       >
                         <button
                           type="button"
-                          className="group flex w-full items-center gap-2 rounded-md text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+                          className={`group flex cursor-pointer items-center gap-2 text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-400 ${
+                            isCardCollapsed
+                              ? '-mx-4 -my-2 w-[calc(100%+2rem)] rounded-lg px-4 py-2'
+                              : 'w-full rounded-md'
+                          }`}
                           onClick={() => setAugmentCardCollapsed(prev => ({
                             ...prev,
                             [cardId]: !prev[cardId]
@@ -2049,7 +2057,7 @@ export default function Editor({
                           title={isCardCollapsed ? "펼치기" : "접기"}
                         >
                           <SuggestionTitle title={option.title || `생각 ${option.index + 1}`} />
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md transition-[background-color,transform] duration-150 group-hover:bg-stone-100 group-active:scale-[0.96]">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center transition-transform duration-150 group-active:scale-[0.96]">
                             {isCardCollapsed ? (
                               <ChevronDown className="w-4 h-4 text-gray-500" />
                             ) : (
