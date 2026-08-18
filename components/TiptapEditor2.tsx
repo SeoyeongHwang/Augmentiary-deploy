@@ -71,7 +71,7 @@ function SuggestionAccordionHeader({
     return (
       <button
         type="button"
-        className="group relative -mx-4 -my-2 flex min-h-14 w-[calc(100%+2rem)] cursor-pointer items-center rounded-lg px-4 py-2 pr-14 text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-400"
+        className="group relative -mx-4 -my-2 flex min-h-14 w-[calc(100%+2rem)] cursor-pointer items-center rounded-lg px-4 py-4 pr-14 text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-400"
         onClick={onToggle}
         aria-expanded={false}
         aria-controls={contentId}
@@ -79,7 +79,7 @@ function SuggestionAccordionHeader({
         title="펼치기"
       >
         <SuggestionTitle title={title} />
-        <span className="absolute right-2 top-2 flex h-10 w-10 items-center justify-center transition-transform duration-150 group-active:scale-[0.96]">
+        <span className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center transition-transform duration-150 group-active:scale-[0.96]">
           <ChevronDown className="h-4 w-4 text-gray-500" />
         </span>
       </button>
@@ -87,11 +87,11 @@ function SuggestionAccordionHeader({
   }
 
   return (
-    <div className="flex min-h-10 w-full items-center pr-12">
+    <div className="relative flex min-h-10 w-full items-center py-2 pr-12">
       <SuggestionTitle title={title} />
       <button
         type="button"
-        className="absolute right-2 top-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-md transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+        className="absolute -right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
         onClick={onToggle}
         aria-expanded={true}
         aria-controls={contentId}
