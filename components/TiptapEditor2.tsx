@@ -1689,7 +1689,9 @@ export default function Editor({
                   return (
                     <div
                       key={experience.id || index}
-                      className="w-full bg-white border border-stone-200 rounded-lg p-4 mb-2"
+                      className={`w-full bg-white border border-stone-200 rounded-lg px-4 mb-2 ${
+                        isCardCollapsed ? 'py-2' : 'py-4'
+                      }`}
                     >
                       <button
                         type="button"
@@ -2030,7 +2032,9 @@ export default function Editor({
                     return (
                       <div
                         key={option.index}
-                        className="w-full bg-white border border-stone-300 rounded-lg p-4 mb-2"
+                        className={`w-full bg-white border border-stone-300 rounded-lg px-4 mb-2 ${
+                          isCardCollapsed ? 'py-2' : 'py-4'
+                        }`}
                       >
                         <button
                           type="button"
