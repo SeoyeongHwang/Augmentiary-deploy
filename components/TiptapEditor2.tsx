@@ -71,7 +71,7 @@ function SuggestionAccordionHeader({
     return (
       <button
         type="button"
-        className="group -mx-4 -my-2 flex w-[calc(100%+2rem)] cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-400"
+        className="group relative -mx-4 -my-2 flex min-h-14 w-[calc(100%+2rem)] cursor-pointer items-center rounded-lg px-4 py-2 pr-14 text-left transition-colors duration-150 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stone-400"
         onClick={onToggle}
         aria-expanded={false}
         aria-controls={contentId}
@@ -79,7 +79,7 @@ function SuggestionAccordionHeader({
         title="펼치기"
       >
         <SuggestionTitle title={title} />
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center transition-transform duration-150 group-active:scale-[0.96]">
+        <span className="absolute right-2 top-2 flex h-10 w-10 items-center justify-center transition-transform duration-150 group-active:scale-[0.96]">
           <ChevronDown className="h-4 w-4 text-gray-500" />
         </span>
       </button>
@@ -87,7 +87,7 @@ function SuggestionAccordionHeader({
   }
 
   return (
-    <div className="flex w-full items-center pr-12">
+    <div className="flex min-h-10 w-full items-center pr-12">
       <SuggestionTitle title={title} />
       <button
         type="button"
