@@ -25,6 +25,12 @@ const namum = Nanum_Myeongjo({
     weight: ['400', '700', '800'],
   })
 
+// 서버에서 온 문자열을 모달 HTML에 넣기 전에 이스케이프
+const escapeHtml = (text: string): string =>
+  text.replace(/[&<>"']/g, (ch) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch] as string)
+  )
+
 // 제안 제목 선두의 이모지(변형 선택자·ZWJ·피부톤 조합 포함) 매칭
 // tsconfig target(ES2017)에서 리터럴의 \p{...} 구문을 허용하지 않아 생성자 사용
 const LEADING_EMOJI_PATTERN = new RegExp(
@@ -921,7 +927,7 @@ export default function Editor({
       setOriginalEntryModal({
         isOpen: true,
         title: '오류 발생',
-        content: `<p>${errorMessage}</p><p>잠시 후 다시 시도해주세요.</p>`,
+        content: `<p>${escapeHtml(errorMessage)}</p><p>잠시 후 다시 시도해주세요.</p>`,
         createdAt: '',
         loading: false
       })
@@ -1052,21 +1058,28 @@ export default function Editor({
           if (originalText) {
             const editRatio = calculateEditRatio(originalText, currentText)
             const opacity = Math.max(0, 1 - editRatio)
-            
-            // 기존 스타일에서 배경색만 추출
-            const existingStyle = aiMark.attrs.style || ''
+
             const currentBgColor = getComputedStyle(document.documentElement).getPropertyValue('--ai-highlight-bg').trim() || 'rgba(207, 255, 204, 1)'
-            const backgroundColor = opacity > 0 
-              ? currentBgColor.replace('1)', `${opacity})`) 
+            const backgroundColor = opacity > 0
+              ? currentBgColor.replace('1)', `${opacity})`)
               : 'transparent'
-            
+
+            const newEditRatio = editRatio.toString()
+            const newStyle = `background-color: ${backgroundColor};`
+
+            // 값이 그대로면 마크를 다시 만들지 않는다
+            // (불필요한 dispatch → onUpdate → 재호출 루프 방지)
+            if (aiMark.attrs.editRatio === newEditRatio && aiMark.attrs.style === newStyle) {
+              return
+            }
+
             // 새로운 스타일로 마크 업데이트
             const newMark = aiMark.type.create({
               ...aiMark.attrs,
-              editRatio: editRatio.toString(),
-              style: `background-color: ${backgroundColor};`
+              editRatio: newEditRatio,
+              style: newStyle
             })
-            
+
             tr.removeMark(pos, pos + node.nodeSize, aiMark)
             tr.addMark(pos, pos + node.nodeSize, newMark)
             hasChanges = true
@@ -1706,7 +1719,7 @@ export default function Editor({
                       <div id={`${cardId}-content`} className={`transition-[max-height,opacity] duration-300 ease-in-out overflow-hidden ${
                         isCardCollapsed ? 'max-h-0 opacity-0' : 'max-h-[1000px] opacity-100'
                       }`}>
-                        <div className="text-gray-800 text-[15px] leading-relaxed my-3">
+                        <div className="text-gray-800 text-[15px] leading-relaxed my-3 break-keep break-words">
                           {experience.description || '관련된 과거 기록이 있습니다.'}
                         </div>
                     
@@ -2056,7 +2069,7 @@ export default function Editor({
                               {option.strategy}
                             </div>
                           )} */}
-                          <div className="text-gray-800 text-[15px] leading-relaxed my-3">
+                          <div className="text-gray-800 text-[15px] leading-relaxed my-3 break-keep break-words">
                             {option.text}
                           </div>
                           
