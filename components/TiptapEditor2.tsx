@@ -4,20 +4,13 @@ import StarterKit from '@tiptap/starter-kit'
 import { Plugin, PluginKey, Transaction } from '@tiptap/pm/state'
 import { Extension } from '@tiptap/core'
 import { AIHighlight } from '../utils/tiptapExtensions'
-import { Button, Heading, Card, Textarea, TextInput } from './index'
-import { ArrowUturnLeftIcon, ArrowUturnRightIcon, ArchiveBoxIcon, DocumentTextIcon, SparklesIcon, BoldIcon, ItalicIcon, CommandLineIcon, LinkIcon, LightBulbIcon, CheckIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { LoaderIcon, ArchiveIcon, SparkleIcon, ExternalLink, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react'
+import { TextInput } from './index'
+import { ArrowUturnLeftIcon, ArrowUturnRightIcon, SparklesIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { LoaderIcon, SparkleIcon, ExternalLink, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react'
 import CircleIconButton from './CircleIconButton';
 import JournalModal from './JournalModal';
 import { Nanum_Myeongjo } from 'next/font/google'
-import { 
-  generateRequestId, 
-  findAITextElement, 
-  createAITextAttributes,
-  calculateBackgroundOpacity,
-  getBackgroundColor,
-  debounce
-} from '../utils/editorHelpers'
+import { generateRequestId } from '../utils/editorHelpers'
 import { calculateEditRatio } from '../utils/diff'
 import type { AICategory, AIAgentResult } from '../types/ai'
 import { useInteractionLog } from '../hooks/useInteractionLog'
