@@ -49,7 +49,7 @@ function SuggestionTitle({ title }: { title: string }) {
   return (
     <span className="flex min-w-0 flex-1 items-start gap-x-2 font-bold text-l text-gray-900">
       {emoji && <span className="block shrink-0 leading-normal">{emoji}</span>}
-      <span className="min-w-0 flex-1 break-keep text-balance leading-normal [overflow-wrap:anywhere]">
+      <span className="min-w-0 flex-1 break-keep break-words text-balance leading-normal">
         {text}
       </span>
     </span>
@@ -1665,7 +1665,7 @@ export default function Editor({
   return (
     <div className="flex flex-col lg:flex-row h-auto lg:h-full w-full overflow-visible lg:overflow-hidden lg:justify-center bg-[#faf9f5] px-6 gap-4">
       {/* 왼쪽 패널: 경험 찾기 결과 */}
-      <div className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit pb-4 overflow-visible order-2 lg:order-1 ${
+      <div className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit pb-4 overflow-visible break-keep break-words order-2 lg:order-1 ${
         experienceOptions && experienceVisible && !experienceCollapsed ? 'lg:h-full lg:overflow-hidden' : 'lg:overflow-visible'
       }`}>
         <div className={`px-0 lg:px-3 lg:pb-10 space-y-4 [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
@@ -1985,7 +1985,7 @@ export default function Editor({
       </div>
       {/* 오른쪽 패널
       : 관점 확장하기 결과 */}
-      <aside className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit px-0 pb-4 overflow-visible order-3 lg:order-3 ${
+      <aside className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit px-0 pb-4 overflow-visible break-keep break-words order-3 lg:order-3 ${
         (bubbleMenuOptions || augmentOptions) && augmentVisible && !augmentCollapsed ? 'lg:h-full lg:overflow-hidden' : 'lg:overflow-visible'
       }`}>
         <div className={`px-0 lg:pr-3 lg:pb-10 space-y-4 [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
