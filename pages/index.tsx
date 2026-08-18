@@ -1,7 +1,6 @@
 // pages/index.tsx
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"
 import { Button, Heading, JournalCard, JournalModal } from '../components'
 import type { Entry } from '../types/entry'
 
@@ -14,8 +13,6 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [offset, setOffset] = useState(0)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [hideTitle, setHideTitle] = useState(false)
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
   const [showModal, setShowModal] = useState(false)
   const router = useRouter()
@@ -139,14 +136,6 @@ export default function Home() {
     if (node) observerRef.current.observe(node)
   }, [entriesLoading, loadingMore, hasMore])
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setHideTitle(window.scrollY > 20)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   const handleCardClick = (entry: Entry) => {
     setSelectedEntry(entry)
     setShowModal(true)
@@ -191,21 +180,20 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#faf9f5]">
       {/* Header */}
-      {(sidebarOpen || !hideTitle) && (
-        <header className="h-24 p-6 flex items-center bg-[#faf9f5] transition-all duration-300 shadow-sm">
+      <header className="h-20 bg-[#faf9f5]">
+        <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
+          <Heading level={1} className="text-xl font-bold tracking-[-0.015em] text-stone-900">
+            Augmentiary
+          </Heading>
           <button
-            className="p-2"
-            onClick={() => setSidebarOpen(true)}
+            type="button"
+            onClick={handleLogout}
+            className="-mr-3 min-h-10 rounded-lg px-3 text-sm font-medium text-stone-600 transition-[color,background-color,transform] duration-150 ease-out hover:bg-black/[0.04] hover:text-stone-900 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf9f5]"
           >
-            <Bars3Icon className="h-6 w-6 text-gray-700" />
+            로그아웃
           </button>
-          {!hideTitle && (
-            <Heading level={1} className="ml-4 text-xl font-bold text-gray-900 transition-all duration-300">
-              Augmentiary
-            </Heading>
-          )}
-        </header>
-      )}
+        </div>
+      </header>
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto p-6">
@@ -272,33 +260,6 @@ export default function Home() {
           )}
         </div>
       </div>
-
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50
-          transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
-      >
-        <div className="flex items-center justify-between p-4 border-b">
-          <span className="text-lg font-bold">메뉴</span>
-          <button
-            className="p-2"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <XMarkIcon className="h-6 w-6 text-black" />
-          </button>
-        </div>
-        <nav className="p-4 space-y-4">
-          <Button
-            onClick={handleLogout}
-            className="w-full"
-          >
-            로그아웃
-          </Button>
-        </nav>
-      </aside>
 
       {/* 일기 모달 */}
       {selectedEntry && (
