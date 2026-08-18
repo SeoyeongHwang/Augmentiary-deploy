@@ -49,7 +49,7 @@ function SuggestionTitle({ title }: { title: string }) {
   return (
     <span className="flex min-w-0 flex-1 items-start gap-x-2 font-bold text-l text-gray-900">
       {emoji && <span className="block shrink-0 leading-normal">{emoji}</span>}
-      <span className="min-w-0 flex-1 break-keep break-words text-balance leading-normal">
+      <span className="min-w-0 flex-1 break-keep break-words leading-normal">
         {text}
       </span>
     </span>
