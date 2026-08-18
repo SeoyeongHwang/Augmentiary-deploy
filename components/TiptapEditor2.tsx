@@ -87,11 +87,11 @@ function SuggestionAccordionHeader({
   }
 
   return (
-    <div className="flex w-full items-center gap-2">
+    <div className="flex w-full items-center pr-12">
       <SuggestionTitle title={title} />
       <button
         type="button"
-        className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+        className="absolute right-2 top-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-md transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
         onClick={onToggle}
         aria-expanded={true}
         aria-controls={contentId}
@@ -1737,7 +1737,7 @@ export default function Editor({
                   return (
                     <div
                       key={experience.id || index}
-                      className={`w-full overflow-hidden bg-white border border-stone-200 rounded-lg px-4 pt-2 mb-2 transition-[padding-bottom] duration-200 ease-out ${
+                      className={`relative w-full overflow-hidden bg-white border border-stone-200 rounded-lg px-4 pt-2 mb-2 transition-[padding-bottom] duration-200 ease-out ${
                         isCardCollapsed ? 'pb-2' : 'pb-4'
                       }`}
                     >
@@ -2070,7 +2070,7 @@ export default function Editor({
                     return (
                       <div
                         key={option.index}
-                        className={`w-full overflow-hidden bg-white border border-stone-300 rounded-lg px-4 pt-2 mb-2 transition-[padding-bottom] duration-200 ease-out ${
+                        className={`relative w-full overflow-hidden bg-white border border-stone-300 rounded-lg px-4 pt-2 mb-2 transition-[padding-bottom] duration-200 ease-out ${
                           isCardCollapsed ? 'pb-2' : 'pb-4'
                         }`}
                       >
