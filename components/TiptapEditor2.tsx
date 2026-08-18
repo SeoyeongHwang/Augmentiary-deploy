@@ -1747,7 +1747,7 @@ export default function Editor({
                         contentId={`${cardId}-content`}
                         onToggle={() => setExperienceCardCollapsed(prev => ({
                           ...prev,
-                          [cardId]: !prev[cardId]
+                          [cardId]: !(prev[cardId] ?? true)
                         }))}
                       />
                       <div id={`${cardId}-content`} className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${
@@ -2080,7 +2080,7 @@ export default function Editor({
                           contentId={`${cardId}-content`}
                           onToggle={() => setAugmentCardCollapsed(prev => ({
                             ...prev,
-                            [cardId]: !prev[cardId]
+                            [cardId]: !(prev[cardId] ?? true)
                           }))}
                         />
                         <div id={`${cardId}-content`} className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${
