@@ -91,7 +91,7 @@ function SuggestionAccordionHeader({
       <SuggestionTitle title={title} />
       <button
         type="button"
-        className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-md transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
+        className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-[background-color,transform] duration-150 hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
         onClick={onToggle}
         aria-expanded={true}
         aria-controls={contentId}
