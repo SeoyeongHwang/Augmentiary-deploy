@@ -87,7 +87,7 @@ function SuggestionAccordionHeader({
   }
 
   return (
-    <div className="relative flex min-h-10 w-full items-center py-1 pr-12">
+    <div className="relative flex min-h-10 w-full items-center py-1 pr-10">
       <SuggestionTitle title={title} />
       <button
         type="button"
