@@ -547,7 +547,8 @@ export default function Write() {
           <h1 className="text-lg font-semibold text-gray-900"> </h1>
           <Button
             onClick={handleSave}
-            className="px-6 py-2 bg-stone-700 text-white hover:bg-stone-800"
+            variant="stone-primary"
+            className="h-10 min-w-[104px] px-5 focus-visible:ring-offset-[#faf9f5]"
             disabled={!entryId || isSubmitting}
           >
             {isSubmitting ? '저장 중...' : '저장하기'}
