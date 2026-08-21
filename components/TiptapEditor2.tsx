@@ -1759,8 +1759,8 @@ export default function Editor({
       <div className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit pb-4 overflow-visible break-keep break-words order-2 lg:order-1 ${
         experienceOptions && experienceVisible && !experienceCollapsed ? 'lg:h-full lg:overflow-hidden' : 'lg:overflow-visible'
       }`}>
-        <div className={`px-0 lg:px-3 lg:pb-10 space-y-4 [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
-          experienceOptions && experienceVisible && !experienceCollapsed ? 'lg:flex-1 lg:overflow-y-auto' : ''
+        <div className={`space-y-4 px-0 [scrollbar-gutter:stable] lg:overflow-y-auto lg:pb-10 lg:pl-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
+          experienceOptions && experienceVisible && !experienceCollapsed ? 'lg:flex-1' : ''
         }`}>
         {/* 경험 관련 결과 */}
         {experienceOptions && experienceVisible && (
@@ -2032,7 +2032,7 @@ export default function Editor({
                         return from !== to && selectedText.length > 0 && selectedText.length < 500
                       }}
                     >
-                      <div className="flex items-center gap-1 rounded-xl shadow-2xl border border-stone-400 bg-black backdrop-blur-sm p-1.5">
+                      <div className="flex items-center gap-1 rounded-xl bg-stone-900/95 p-1.5 shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_8px_24px_rgba(28,25,23,0.22)] backdrop-blur-sm">
                         {(experienceButtonLoading || bubbleMenuLoading) ? (
                           <div className="flex items-center justify-center px-6 py-2 text-sm font-bold text-white">
                             <div className="w-4 h-4 border-2 border-amber-300 border-t-stone-400 rounded-full animate-spin mr-2"></div>
@@ -2049,7 +2049,7 @@ export default function Editor({
                               onClick={() => {
                                 handleExperienceRecall();
                               }}
-                              className="flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-transparent px-3 py-2 text-base font-bold text-white transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 hover:shadow-lg active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
+                              className="flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-transparent px-3 py-2 text-base font-bold text-white transition-[background-color,transform] duration-150 ease-out hover:bg-[#A78BFA]/30 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4B5FD]"
                               title="맞닿은 경험 찾기"
                             >
                               <LoaderIcon className="w-4 h-4" />
@@ -2060,7 +2060,7 @@ export default function Editor({
                               onClick={() => {
                                 handleMeaningAugment();
                               }}
-                              className="flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-transparent px-3 py-2 text-base font-bold text-white transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 hover:shadow-lg active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
+                              className="flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-transparent px-3 py-2 text-base font-bold text-white transition-[background-color,transform] duration-150 ease-out hover:bg-[#A78BFA]/30 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C4B5FD]"
                               title="관점 확장하기"
                             >
                               <SparkleIcon className="w-4 h-4" />
@@ -2086,8 +2086,8 @@ export default function Editor({
       <aside className={`flex-1 max-w-full lg:max-w-sm min-w-0 flex flex-col h-fit px-0 pb-4 overflow-visible break-keep break-words order-3 lg:order-3 ${
         (bubbleMenuOptions || augmentOptions) && augmentVisible && !augmentCollapsed ? 'lg:h-full lg:overflow-hidden' : 'lg:overflow-visible'
       }`}>
-        <div className={`px-0 lg:pr-3 lg:pb-10 space-y-4 [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
-          (bubbleMenuOptions || augmentOptions) && augmentVisible && !augmentCollapsed ? 'lg:flex-1 lg:overflow-y-auto' : ''
+        <div className={`space-y-4 px-0 [scrollbar-gutter:stable] lg:overflow-y-auto lg:pb-10 lg:pr-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 ${
+          (bubbleMenuOptions || augmentOptions) && augmentVisible && !augmentCollapsed ? 'lg:flex-1' : ''
         }`}>
           {/* <Button onClick={handleAugment} disabled={loading} className="px-4 py-2 rounded">
             {loading ? '고민하는 중...' : '관점 확장하기'}
