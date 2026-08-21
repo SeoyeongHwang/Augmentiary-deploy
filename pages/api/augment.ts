@@ -3,11 +3,90 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { callDirectionAgent, callInterpretiveAgent, callScaffoldingAgent } from '../../lib/augmentAgents';
+import type {
+  AugmentRegenerationContext,
+  DirectionAgentResult,
+  RejectedInterpretiveOption,
+} from '../../lib/augmentAgents';
+import { getAllApproachNames } from '../../lib/approaches';
 import { isOpenAIAPIError } from '../../lib/openai';
 import {
   createAdminSupabaseClient,
   getAuthenticatedUser,
 } from '../../utils/supabase/server';
+
+const VALID_APPROACHES = new Set(getAllApproachNames());
+const VALID_SIGNIFICANCE = new Set(['1', '2', '3', '4', '5']);
+const VALID_GROUNDING_MODES = new Set(['close', 'tentative', 'exploratory']);
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const normalizeInputString = (value: unknown, maxLength: number): string =>
+  typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
+
+const removeScaffoldingStem = (text: string): string =>
+  text.replace(/\s+[^.!?…]{1,80}\.\.\.$/u, '').trim();
+
+const normalizeRejectedOptions = (value: unknown): RejectedInterpretiveOption[] => {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .slice(0, 3)
+    .flatMap((option): RejectedInterpretiveOption[] => {
+      if (!isRecord(option)) return [];
+
+      const approach = normalizeInputString(option.approach, 80);
+      const title = normalizeInputString(option.title, 100);
+      const text = removeScaffoldingStem(normalizeInputString(option.text, 320));
+
+      if (!VALID_APPROACHES.has(approach) || !text) return [];
+
+      return [{ approach, title, text }];
+    });
+};
+
+const normalizePreviousDirection = (value: unknown): DirectionAgentResult | null => {
+  if (!isRecord(value)) return null;
+
+  const reflectiveSummary = normalizeInputString(value.reflective_summary, 1000);
+  const significance = normalizeInputString(value.significance, 1);
+  const groundingMode = normalizeInputString(value.grounding_mode, 20);
+  const approaches = Array.isArray(value.approaches)
+    ? value.approaches
+      .map(approach => normalizeInputString(approach, 80))
+      .filter(approach => VALID_APPROACHES.has(approach))
+    : [];
+
+  if (
+    !reflectiveSummary ||
+    !VALID_SIGNIFICANCE.has(significance) ||
+    !VALID_GROUNDING_MODES.has(groundingMode) ||
+    approaches.length !== 3 ||
+    new Set(approaches).size !== 3
+  ) {
+    return null;
+  }
+
+  return {
+    reflective_summary: reflectiveSummary,
+    significance,
+    grounding_mode: groundingMode as DirectionAgentResult['grounding_mode'],
+    approaches,
+  };
+};
+
+const createRegenerationContext = (
+  previousDirectionValue: unknown,
+  previousOptionsValue: unknown
+): AugmentRegenerationContext | undefined => {
+  const previousDirection = normalizePreviousDirection(previousDirectionValue);
+  const rejectedOptions = normalizeRejectedOptions(previousOptionsValue);
+
+  if (!previousDirection || rejectedOptions.length !== 3) return undefined;
+
+  return { previousDirection, rejectedOptions };
+};
 
 // userProfile JSON을 필요한 필드들만 추출하여 변환하는 함수
 const extractUserProfileForResource = (userProfileInput: any) => {
@@ -103,7 +182,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: '인증이 필요합니다.' });
     }
 
-    const { diaryEntry, selectedText } = req.body;
+    const {
+      diaryEntry,
+      selectedText,
+      previousDirection,
+      previousOptions,
+    } = req.body;
     if (
       typeof diaryEntry !== 'string' ||
       typeof selectedText !== 'string' ||
@@ -111,6 +195,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ) {
       return res.status(400).json({ error: '선택된 텍스트가 필요합니다.' });
     }
+
+    const regenerationContext = createRegenerationContext(
+      previousDirection,
+      previousOptions
+    );
 
     const supabase = createAdminSupabaseClient();
     const { data: userData, error: userError } = await supabase
@@ -124,13 +213,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: '사용자 프로필을 가져오지 못했습니다.' });
     }
 
-    console.log('🚀 [AUGMENT] Starting augmentation pipeline...');
+    console.log('🚀 [AUGMENT] Starting augmentation pipeline...', {
+      isRegeneration: !!regenerationContext,
+    });
 
     // Step 1: Direction Agent
     console.log('📖 [STEP 1] Starting Direction Agent...');
-    const directionAgentResult = await callDirectionAgent(diaryEntry, selectedText);
+    const directionAgentResult = await callDirectionAgent(
+      diaryEntry,
+      selectedText,
+      regenerationContext
+    );
     console.log('✅ [STEP 1] Direction Agent completed:', {
       significance: directionAgentResult.significance,
+      groundingMode: directionAgentResult.grounding_mode,
       approaches: directionAgentResult.approaches
     });
 
@@ -144,9 +240,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const interpretiveAgentResult = await callInterpretiveAgent(
       diaryEntry,
       selectedText,
+      directionAgentResult.reflective_summary,
       directionAgentResult.significance,
+      directionAgentResult.grounding_mode,
       resourceProfile,
-      directionAgentResult.approaches
+      directionAgentResult.approaches,
+      regenerationContext?.rejectedOptions
     );
 
     console.log('✅ [STEP 2] Interpretive Agent completed:', {

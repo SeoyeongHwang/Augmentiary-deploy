@@ -50,23 +50,30 @@ export async function callSummaryAgent(
           { role: 'system', content: prompt },
           { role: 'user', content: `Diary content: \n${diaryContent}` },
         ],
-        temperature: 0.7,
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'diary_summary',
+            strict: true,
+            schema: {
+              type: 'object',
+              properties: {
+                sum_event: { type: 'string' },
+                sum_innerstate: { type: 'string' },
+                sum_insight: { type: 'string' },
+              },
+              required: ['sum_event', 'sum_innerstate', 'sum_insight'],
+              additionalProperties: false,
+            },
+          },
+        },
       }),
     })
 
     const textResult = await getOpenAIChatCompletionText(response)
     
     try {
-      const jsonStart = textResult.indexOf('{')
-      const jsonEnd = textResult.lastIndexOf('}')
-      
-      if (jsonStart === -1 || jsonEnd === -1) {
-        console.error('서머리 에이전트 JSON 브래킷을 찾을 수 없음')
-        return { sum_event: '', sum_innerstate: '', sum_insight: '' }
-      }
-      
-      const jsonString = textResult.substring(jsonStart, jsonEnd + 1)
-      const parsedResult = JSON.parse(jsonString)
+      const parsedResult = JSON.parse(textResult)
       
       const summaryResult = {
         sum_event: parsedResult.sum_event || '',

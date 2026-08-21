@@ -1,6 +1,7 @@
 export const OPENAI_MODELS = {
-  standard: 'gpt-5.4-mini',
-  lightweight: 'gpt-5.4-nano',
+  standard: 'gpt-5.6-luna',
+  interpretive: 'gpt-5.6-luna',
+  lightweight: 'gpt-5.6-luna',
 } as const
 
 type JsonObject = Record<string, unknown>

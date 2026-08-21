@@ -163,7 +163,65 @@ JSON 형식만 반환하고, 다른 텍스트는 포함하지 마세요.`
           }
         ],
         max_completion_tokens: 1000,
-        temperature: 0.5
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'survey_profile',
+            strict: true,
+            schema: {
+              type: 'object',
+              properties: {
+                social_identity: {
+                  type: 'object',
+                  properties: {
+                    age: { type: 'number' },
+                    major: { type: 'string' },
+                    gender: { type: 'string' },
+                    residence: { type: 'string' },
+                    education_level: { type: 'string' },
+                    religious_belief: { type: 'string' },
+                    occupation_status: { type: 'string' },
+                  },
+                  required: [
+                    'age',
+                    'major',
+                    'gender',
+                    'residence',
+                    'education_level',
+                    'religious_belief',
+                    'occupation_status',
+                  ],
+                  additionalProperties: false,
+                },
+                personal_identity: {
+                  type: 'object',
+                  properties: {
+                    personality: { type: 'string' },
+                    value: { type: 'string' },
+                  },
+                  required: ['personality', 'value'],
+                  additionalProperties: false,
+                },
+                personal_life_context: {
+                  type: 'object',
+                  properties: {
+                    past: { type: 'string' },
+                    present: { type: 'string' },
+                    future: { type: 'string' },
+                  },
+                  required: ['past', 'present', 'future'],
+                  additionalProperties: false,
+                },
+              },
+              required: [
+                'social_identity',
+                'personal_identity',
+                'personal_life_context',
+              ],
+              additionalProperties: false,
+            },
+          },
+        },
       })
     })
 

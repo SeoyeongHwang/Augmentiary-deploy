@@ -20,6 +20,20 @@ import { logInteractionAsync } from '../lib/logger'
 import Placeholder from '@tiptap/extension-placeholder'
 import { addAIPromptToQueue } from '../utils/aiPromptQueue'
 
+type AugmentGroundingMode = 'close' | 'tentative' | 'exploratory'
+
+interface AugmentDirectionResult {
+  reflective_summary: string
+  significance: string
+  grounding_mode: AugmentGroundingMode
+  approaches: string[]
+}
+
+interface AugmentSourceContext {
+  diaryEntry: string
+  selectedText: string
+}
+
 const namum = Nanum_Myeongjo({
     subsets: ['latin'],
     weight: ['400', '700', '800'],
@@ -671,6 +685,8 @@ export default function Editor({
   
   const [augments, setAugments] = useState<{ start: number; end: number; inserted: string; requestId: string; category: AICategory; originalText: string }[]>([])
   const [augmentOptions, setAugmentOptions] = useState<AIAgentResult | null>(null)
+  const [augmentDirection, setAugmentDirection] = useState<AugmentDirectionResult | null>(null)
+  const [augmentSourceContext, setAugmentSourceContext] = useState<AugmentSourceContext | null>(null)
   const [loading, setLoading] = useState(false)
   const [fontMenuOpen, setFontMenuOpen] = useState(false)
   const [colorMenuOpen, setColorMenuOpen] = useState(false)
@@ -1034,6 +1050,23 @@ export default function Editor({
     
     const fullText = editor.state.doc.textContent
     const previousContext = fullText.slice(0, from) // 선택된 부분 직전까지의 맥락
+    const visibleAugmentOptions = bubbleMenuOptions || augmentOptions
+    const canUseRegenerationContext = !!(
+      useLastSelection &&
+      visibleAugmentOptions &&
+      augmentDirection &&
+      augmentSourceContext &&
+      augmentSourceContext.selectedText === selectedText &&
+      augmentSourceContext.diaryEntry === previousContext
+    )
+
+    const previousOptions = canUseRegenerationContext && visibleAugmentOptions
+      ? [
+        visibleAugmentOptions.option1,
+        visibleAugmentOptions.option2,
+        visibleAugmentOptions.option3,
+      ].map(({ approach, title, text }) => ({ approach, title, text }))
+      : undefined
 
     try {
       const res = await fetch('/api/augment', {
@@ -1043,6 +1076,10 @@ export default function Editor({
         body: JSON.stringify({ 
           diaryEntry: previousContext,
           selectedText: selectedText,
+          ...(canUseRegenerationContext ? {
+            previousDirection: augmentDirection,
+            previousOptions,
+          } : {}),
         }),
       })
       
@@ -1065,6 +1102,16 @@ export default function Editor({
         }
 
         setAugmentOptions(aiSuggestions)
+        if (data.directionAgentResult) {
+          setAugmentDirection(data.directionAgentResult)
+          setAugmentSourceContext({
+            diaryEntry: previousContext,
+            selectedText,
+          })
+        } else {
+          setAugmentDirection(null)
+          setAugmentSourceContext(null)
+        }
       }
 
       // 새로운 선택이었다면 응답 후 선택 해제하여 버블 메뉴 숨기기
@@ -1081,7 +1128,20 @@ export default function Editor({
     } finally {
       setBubbleMenuLoading(false)
     }
-  }, [bubbleMenuLoading, editor, canLog, entryId, logAITrigger, user, lastSelectedText, lastSelectionPosition])
+  }, [
+    bubbleMenuLoading,
+    editor,
+    canLog,
+    entryId,
+    logAITrigger,
+    user,
+    lastSelectedText,
+    lastSelectionPosition,
+    bubbleMenuOptions,
+    augmentOptions,
+    augmentDirection,
+    augmentSourceContext,
+  ])
 
   // AI 텍스트 편집 감지 및 투명도 업데이트 (직접 스타일 적용)
   const handleAITextEdit = useCallback(() => {
@@ -1296,6 +1356,16 @@ export default function Editor({
           }
 
           setAugmentOptions(aiSuggestions)
+          if (data.directionAgentResult) {
+            setAugmentDirection(data.directionAgentResult)
+            setAugmentSourceContext({
+              diaryEntry: previousContext,
+              selectedText,
+            })
+          } else {
+            setAugmentDirection(null)
+            setAugmentSourceContext(null)
+          }
         }
     } catch (error) {
       console.error('Error fetching augment options:', error)
@@ -1446,6 +1516,8 @@ export default function Editor({
       originalText: inserted
     }]);
     setAugmentOptions(null);
+    setAugmentDirection(null);
+    setAugmentSourceContext(null);
   };
 
 

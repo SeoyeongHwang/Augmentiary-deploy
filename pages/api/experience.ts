@@ -111,23 +111,41 @@ async function experienceHandler(
     const analysis = await callPastRecordAgent(
       selectedText, 
       entry.sum_innerstate, 
-      entry.sum_insight
+      entry.sum_insight,
+      entry.content_html
     )
 
     return {
       ...entry,
       similarity: analysis.averageSimilarity,
-      analysisReasons: analysis.analysisReasons
+      analysisReasons: analysis.analysisReasons,
+      connectionKind: analysis.connectionKind,
+      connectionFocus: analysis.connectionFocus,
     }
   })
 
   const experiencesWithSimilarity = await Promise.all(experiencePromises)
 
-  // 8. 유사도가 높은 순으로 정렬하고 상위 3개 선택
-  const topExperiences = experiencesWithSimilarity
+  // 8. 관련성을 우선하되, 점수가 비슷하면 서로 다른 연결을 보여주는 기록을 선택
+  const remainingExperiences = experiencesWithSimilarity
     .filter(exp => exp.similarity >= 0.7) // 최소 유사도 0.7 이상으로 필터링
     .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, 3)
+
+  const topExperiences: typeof remainingExperiences = []
+  const usedConnectionKinds = new Set<string>()
+
+  while (topExperiences.length < 3 && remainingExperiences.length > 0) {
+    const bestSimilarity = remainingExperiences[0].similarity
+    const distinctConnectionIndex = remainingExperiences.findIndex(exp =>
+      !usedConnectionKinds.has(exp.connectionKind) &&
+      exp.similarity >= bestSimilarity - 0.08
+    )
+    const selectedIndex = distinctConnectionIndex >= 0 ? distinctConnectionIndex : 0
+    const [selectedExperience] = remainingExperiences.splice(selectedIndex, 1)
+
+    topExperiences.push(selectedExperience)
+    usedConnectionKinds.add(selectedExperience.connectionKind)
+  }
 
   console.log(`📊 상위 경험 ${topExperiences.length}개 선택됨`, `[${requestId}]`)
   console.log(`📊 전체 경험 ${experiencesWithSimilarity.length}개, 유사도 분포:`, experiencesWithSimilarity.map(exp => exp.similarity), `[${requestId}]`)
@@ -141,7 +159,13 @@ async function experienceHandler(
           id: exp.id,
           sum_innerstate: exp.sum_innerstate,
           sum_insight: exp.sum_insight,
-          content: exp.content_html
+          content: exp.content_html,
+          connection_kind: exp.connectionKind,
+          connection_focus: exp.connectionFocus,
+          other_connection_focuses: topExperiences
+            .filter(other => other.id !== exp.id)
+            .map(other => other.connectionFocus)
+            .filter(Boolean),
         })
 
         console.log(`🔧 [STEP 2] 경험 스캐폴딩 (ID: ${exp.id})`, `[${requestId}]`)
@@ -187,9 +211,9 @@ async function experienceHandler(
   // 10. 과거 기록이 부족한 경우 과거 맥락 카드 추가
   let finalExperiences = experiencesWithDescriptions
   
-  // 과거 맥락 카드 생성 조건: 
+  // 과거 맥락 카드 생성 조건:
   // 1) 상세 설명이 생성된 경험이 3개 미만이거나
-  // 2) 전체 경험이 있지만 모두 유사도 0.6 미만인 경우
+  // 2) 이전 일기 중 추천 기준을 통과한 기록이 없는 경우
   const shouldAddPastContext = experiencesWithDescriptions.length < 3 || 
     (experiencesWithSimilarity.length > 0 && topExperiences.length === 0)
   
@@ -254,11 +278,15 @@ async function experienceHandler(
 
           console.log('🔍 과거 맥락 연관성 분석 결과:', relevanceAnalysis.relevance, `[${requestId}]`)
           
-          // 연관성이 0.4 이상일 때만 과거 맥락 카드 생성
-          if (relevanceAnalysis.relevance >= 0.4) {
+          // 넓은 주제 일치만으로 카드를 채우지 않도록 구체적 연결이 있을 때만 생성
+          if (relevanceAnalysis.relevance >= 0.6) {
             console.log('🌱 [STEP 1] 과거 맥락 카드 생성 시작 (연관성 충족)', `[${requestId}]`)
             
-            const pastContextResult = await callPastContextAgent(selectedText, pastContext)
+            const pastContextResult = await callPastContextAgent(
+              selectedText,
+              pastContext,
+              topExperiences.map(exp => exp.connectionFocus).filter(Boolean)
+            )
             
             console.log('🌱 [STEP 2] 과거 맥락 스캐폴딩 시작', `[${requestId}]`)
             const scaffoldedPastContextResult = await callPastContextScaffoldingAgent(pastContextResult, selectedText)
