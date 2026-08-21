@@ -21,8 +21,13 @@ mark[ai-text="true"]:hover {
 
 /* 나의 글로벌 스타일 설정 시작 */
 
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  font-family: 'Nanum Myeongjo', serif;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background-color: #ffffff;
   /* background-color: #f9fafb; 연한 그레이 배경 */
   color: #111827; /* 거의 검은색 텍스트 */
@@ -52,7 +57,7 @@ a:hover {
 }
 
 .ql-editor p {
-  font-family: 'Nanum Myeongjo', serif;
+  font-family: var(--font-nanum-myeongjo), 'Nanum Myeongjo', serif;
   line-height: 2.5; 
   font-weight: 400;
   color: #000000;
@@ -61,6 +66,7 @@ a:hover {
 
 /* Tiptap 에디터 행간 설정 */
 .ProseMirror {
+  font-family: var(--font-nanum-myeongjo), 'Nanum Myeongjo', serif;
   line-height: 2.2 !important;
 }
 

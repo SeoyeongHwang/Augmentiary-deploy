@@ -49,7 +49,7 @@ export default function JournalCard({ id, title, content, createdAt, onClick }: 
   return (
     <Card 
       ref={cardRef}
-      className="cursor-pointer transition-all duration-300 ease-out hover:shadow-xl"
+      className="cursor-pointer transition-[box-shadow,transform] duration-300 ease-out hover:shadow-xl"
       onClick={onClick}
       style={{
         transformStyle: 'preserve-3d',
@@ -57,10 +57,10 @@ export default function JournalCard({ id, title, content, createdAt, onClick }: 
       }}
     >
       <div className="space-y-3">
-        <h3 className="font-semibold text-gray-900 line-clamp-2">{title}</h3>
-        <p className="text-sm text-gray-600 line-clamp-3">{preview}</p>
+        <h3 className="font-serif font-semibold text-gray-900 line-clamp-2">{title}</h3>
+        <p className="font-serif text-sm text-gray-600 line-clamp-3">{preview}</p>
         <p className="text-xs text-gray-400">{formatDate(createdAt)}</p>
       </div>
     </Card>
   )
-} 
+}

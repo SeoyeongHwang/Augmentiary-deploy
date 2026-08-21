@@ -69,11 +69,11 @@ export default function ESMModal({ isOpen, onSubmit, onClose, isSubmitting = fal
         <Card className="flex flex-col p-0 h-full">
           <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">글쓰기 세션 평가</h2>
+              <h2 className="text-balance text-xl font-bold text-gray-900 mb-2">글쓰기 세션 평가</h2>
             </div>
             {/* 질문들 */}
             <div className="space-y-4">
-              <p className="text-sm text-gray-600">작성 과정을 떠올리며 해당하는 정도를 선택해주세요.</p>
+              <p className="text-pretty text-sm text-gray-600">작성 과정을 떠올리며 해당하는 정도를 선택해주세요.</p>
 
               {questions.map((question) => (
                 <div key={question.id} className="space-y-2">
@@ -97,7 +97,7 @@ export default function ESMModal({ isOpen, onSubmit, onClose, isSubmitting = fal
                       <span>{question.max}</span>
                     </div>
                     <div className="w-full flex justify-center">
-                      <span className="font-bold text-emerald-600">
+                      <span className="tabular-nums font-bold text-emerald-600">
                         {question.id === 'SL' && formData[question.id as keyof ESMData] > 0 ? '+' : ''}
                         {formData[question.id as keyof ESMData]}
                       </span>
@@ -115,11 +115,11 @@ export default function ESMModal({ isOpen, onSubmit, onClose, isSubmitting = fal
               <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
-                  <p className="text-sm text-amber-800 font-medium">
+                  <p className="text-pretty text-sm text-amber-800 font-medium">
                     일기를 저장하고 있습니다...
                   </p>
                 </div>
-                <p className="text-xs text-amber-700 mt-1">
+                <p className="text-pretty text-xs text-amber-700 mt-1">
                   완료될 때까지 창을 닫지 말아주세요!
                 </p>
               </div>
@@ -145,4 +145,4 @@ export default function ESMModal({ isOpen, onSubmit, onClose, isSubmitting = fal
       </div>
     </div>
   )
-} 
+}

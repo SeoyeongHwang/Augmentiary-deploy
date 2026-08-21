@@ -13,7 +13,8 @@ module.exports = {
           background: '#f9fafb', 
         },
         fontFamily: {
-          sans: ['Inter', 'sans-serif'],
+          sans: ['"Pretendard Variable"', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+          serif: ['var(--font-nanum-myeongjo)', '"Nanum Myeongjo"', 'serif'],
         },
         borderRadius: {
           xl: '1rem',
@@ -35,4 +36,4 @@ module.exports = {
       },
   },
   plugins: [],
-} 
+}

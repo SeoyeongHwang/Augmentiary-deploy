@@ -20,7 +20,7 @@ const TextInput = forwardRef<HTMLInputElement, {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full border border-gray-300 rounded-xl px-6 py-4 focus:ring-highlight transition ${className}`}
+        className={`w-full rounded-xl border border-gray-300 px-6 py-4 transition-[background-color,border-color,box-shadow] duration-150 ease-out focus:outline-none focus:ring-2 focus:ring-highlight ${className}`}
       />
     );
   }
@@ -29,4 +29,3 @@ const TextInput = forwardRef<HTMLInputElement, {
 TextInput.displayName = 'TextInput';
 
 export default TextInput;
-  

@@ -35,8 +35,10 @@ export default function JournalModal({ isOpen, onClose, title, content, createdA
           <div className="flex-shrink-0 pb-4 border-b border-gray-200">
             {/* 닫기 버튼 */}
             <button
+              type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+              aria-label="일기 닫기"
+              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-[background-color,color,transform] duration-150 ease-out hover:bg-stone-100 hover:text-gray-600 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -50,7 +52,7 @@ export default function JournalModal({ isOpen, onClose, title, content, createdA
                 </div>
               ) : (
                 <>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{title || '무제'}</h2>
+                  <h2 className="font-serif text-2xl font-bold text-gray-900 mb-2">{title || '무제'}</h2>
                   <p className="text-sm text-gray-500">{formatDate(createdAt)}</p>
                 </>
               )}
@@ -63,12 +65,12 @@ export default function JournalModal({ isOpen, onClose, title, content, createdA
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-gray-500 text-sm">일기를 불러오는 중...</p>
+                  <p className="text-pretty text-gray-500 text-sm">일기를 불러오는 중...</p>
                 </div>
               </div>
             ) : (
               <div
-                className="prose prose-sm max-w-none leading-loose"
+                className="prose prose-sm max-w-none font-serif leading-loose"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
               />
             )}
@@ -77,4 +79,4 @@ export default function JournalModal({ isOpen, onClose, title, content, createdA
       </div>
     </div>
   )
-} 
+}

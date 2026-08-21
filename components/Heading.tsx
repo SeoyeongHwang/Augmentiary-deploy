@@ -15,11 +15,10 @@ export default function Heading({
       3: 'text-xl',
       4: 'text-lg',
     }[level];
-  
+
     return React.createElement(
       `h${level}`,
-      { className: `${size} font-bold text-gray-900 ${className}` },
+      { className: `${size} text-balance font-bold text-gray-900 ${className}` },
       children
     );
   }
-  

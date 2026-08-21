@@ -9,7 +9,6 @@ import { ArrowUturnLeftIcon, ArrowUturnRightIcon, SparklesIcon, PlusIcon } from 
 import { LoaderIcon, SparkleIcon, ExternalLink, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react'
 import CircleIconButton from './CircleIconButton';
 import JournalModal from './JournalModal';
-import { Nanum_Myeongjo } from 'next/font/google'
 import { generateRequestId } from '../utils/editorHelpers'
 import { calculateEditRatio } from '../utils/diff'
 import type { AICategory, AIAgentResult } from '../types/ai'
@@ -34,11 +33,6 @@ interface AugmentSourceContext {
   selectedText: string
 }
 
-const namum = Nanum_Myeongjo({
-    subsets: ['latin'],
-    weight: ['400', '700', '800'],
-  })
-
 // 서버에서 온 문자열을 모달 HTML에 넣기 전에 이스케이프
 const escapeHtml = (text: string): string =>
   text.replace(/[&<>"']/g, (ch) =>
@@ -52,12 +46,30 @@ const LEADING_EMOJI_PATTERN = new RegExp(
   'u'
 )
 
-const SUGGESTION_ACTION_BUTTON_CLASS =
-  'mt-2 flex min-h-10 w-full items-center justify-between rounded-md py-2 pl-3 pr-2.5 text-left transition-[background-color,box-shadow,transform,opacity] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50'
+const VIEW_ORIGINAL_BUTTON_CLASS =
+  'inline-flex min-h-10 min-w-0 max-w-full items-center gap-1.5 py-2 text-left text-[#7C3AED] transition-[color,opacity] duration-150 ease-out enabled:hover:text-[#6D28D9] enabled:active:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B5CF6] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
 
-const VIEW_ORIGINAL_BUTTON_CLASS = `${SUGGESTION_ACTION_BUTTON_CLASS} bg-white text-[#6B4B7A] shadow-[inset_0_0_0_1px_rgba(107,75,122,0.18)] enabled:hover:bg-[#F3EEF6] enabled:hover:shadow-[inset_0_0_0_1px_rgba(107,75,122,0.26)] enabled:active:scale-[0.96] focus-visible:ring-[#6B4B7A]`
+const CONTINUE_WRITING_BUTTON_BASE_CLASS =
+  'flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#E5F9C7] px-3 py-2 text-[#4D7A2E] shadow-[inset_0_0_0_1px_rgba(118,169,55,0.28),0_1px_2px_rgba(66,105,35,0.08)] transition-[background-color,box-shadow,transform,opacity] duration-150 ease-out enabled:hover:bg-[#DCF4B8] enabled:hover:shadow-[inset_0_0_0_1px_rgba(105,155,45,0.38),0_2px_4px_rgba(66,105,35,0.1)] enabled:active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#78A947] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
 
-const CONTINUE_WRITING_BUTTON_CLASS = `${SUGGESTION_ACTION_BUTTON_CLASS} bg-[#E7F5EB] text-[#1F6B3A] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)] enabled:hover:bg-[#D8EFDF] enabled:hover:shadow-[inset_0_0_0_1px_rgba(31,107,58,0.2)] enabled:active:scale-[0.96] focus-visible:ring-[#2F824B]`
+const CONTINUE_WRITING_FULL_BUTTON_CLASS =
+  `w-full ${CONTINUE_WRITING_BUTTON_BASE_CLASS}`
+
+function AnimatedChevron({ expanded }: { expanded: boolean }) {
+  const transitionClass =
+    'absolute inset-0 h-4 w-4 text-gray-500 transition-[opacity,filter,transform] duration-300 [transition-timing-function:cubic-bezier(0.2,0,0,1)]'
+
+  return (
+    <span className="relative block h-4 w-4" aria-hidden="true">
+      <ChevronUp
+        className={`${transitionClass} ${expanded ? 'scale-100 opacity-100 blur-0' : 'scale-[0.25] opacity-0 blur-[4px]'}`}
+      />
+      <ChevronDown
+        className={`${transitionClass} ${expanded ? 'scale-[0.25] opacity-0 blur-[4px]' : 'scale-100 opacity-100 blur-0'}`}
+      />
+    </span>
+  )
+}
 
 // 제안 카드 제목: 이모지를 불렛처럼 분리해, 제목이 두 줄 이상으로 줄바꿈되어도
 // 텍스트가 이모지 아래로 침범하지 않고 자체 영역 안에서만 줄바꿈되도록 렌더링
@@ -68,7 +80,7 @@ function SuggestionTitle({ title }: { title: string }) {
   const text = match ? normalizedTitle.slice(match[0].length) : normalizedTitle
 
   return (
-    <span className="flex min-w-0 flex-1 items-start gap-x-2 font-bold text-l text-gray-900">
+    <span className="flex min-w-0 flex-1 items-start gap-x-2 font-serif font-bold text-l text-gray-900">
       {emoji && <span className="block shrink-0 leading-normal">{emoji}</span>}
       <span className="min-w-0 flex-1 break-keep break-words leading-normal">
         {text}
@@ -1752,43 +1764,40 @@ export default function Editor({
         }`}>
         {/* 경험 관련 결과 */}
         {experienceOptions && experienceVisible && (
-          <div className="bg-[#f5f4ed] border border-stone-300 rounded-lg shadow-md p-3 relative">
+          <div className="relative rounded-[20px] border border-stone-300 bg-[#f5f4ed] p-3 shadow-md">
             {/* 로딩 중일 때 오버레이 (자체 로딩만) */}
             {experienceButtonLoading && (
-              <div className="absolute inset-0 bg-gray-300 bg-opacity-50 rounded-lg z-10 flex items-center justify-center">
+              <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[20px] bg-gray-300 bg-opacity-50">
                 <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
               </div>
             )}
                           <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button 
-                    className={`p-2 hover:bg-stone-200 rounded-lg transition-colors flex items-center justify-center ${(experienceButtonLoading || bubbleMenuLoading) ? 'pointer-events-none' : ''}`}
+                  <button
+                    type="button"
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-[background-color,transform] duration-150 ease-out hover:bg-stone-200 enabled:active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:cursor-not-allowed ${(experienceButtonLoading || bubbleMenuLoading) ? 'pointer-events-none' : ''}`}
                     onClick={() => setExperienceCollapsed(!experienceCollapsed)}
                     title={experienceCollapsed ? "펼치기" : "접기"}
                     disabled={experienceButtonLoading || bubbleMenuLoading}
                   >
-                    {experienceCollapsed ? (
-                      <ChevronDown className="w-4 h-4 text-gray-500" />
-                    ) : (
-                      <ChevronUp className="w-4 h-4 text-gray-500" />
-                    )}
+                    <AnimatedChevron expanded={!experienceCollapsed} />
                   </button>
                   <span className="font-bold text-l text-stone-800">맞닿은 경험 찾기</span>
                 </div>
                 <button
                   type="button"
                   aria-label="닫기"
-                  className={`w-8 h-8 p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-200 rounded-lg transition-colors flex items-center justify-center ${(experienceButtonLoading || bubbleMenuLoading) ? 'pointer-events-none' : ''}`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg text-stone-400 transition-[background-color,color,transform] duration-150 ease-out hover:bg-stone-200 hover:text-stone-600 enabled:active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:cursor-not-allowed ${(experienceButtonLoading || bubbleMenuLoading) ? 'pointer-events-none' : ''}`}
                   onClick={() => setExperienceVisible(false)}
                   disabled={experienceButtonLoading || bubbleMenuLoading}
                 >
                   <span className="text-lg font-bold">×</span>
                 </button>
               </div>
-            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            <div className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
               experienceCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
             }`}>
-              <div className="text-stone-500 text-sm my-3">
+              <div className="my-3 text-pretty text-sm text-stone-500">
                 어떤 순간과 맞닿아 있는지 살펴보세요.<br/>자신의 마음과 각 내용을 비교해 보고, 마음에 드는 것이 있다면 선택해서 생각을 이어 나갈 수 있습니다.
               </div>
               
@@ -1798,7 +1807,7 @@ export default function Editor({
                   <button
                     onClick={() => handleExperienceRecall(true)}
                     disabled={experienceButtonLoading || bubbleMenuLoading}
-                    className={`w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#E5E4DD] hover:bg-[#DFDED7] border border-[#DFDED7] hover:border-[#CBCAC3] rounded-md transition-colors duration-200 ${(experienceButtonLoading || bubbleMenuLoading) ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    className={`flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-[#DFDED7] bg-[#E5E4DD] px-3 py-2 transition-[background-color,border-color,transform,opacity] duration-150 ease-out hover:border-[#CBCAC3] hover:bg-[#DFDED7] enabled:active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:cursor-not-allowed ${(experienceButtonLoading || bubbleMenuLoading) ? 'opacity-60' : ''}`}
                   >
                     <RefreshCw className={`w-4 h-4 text-stone-500`} />
                     <span className="text-sm font-medium text-stone-900">
@@ -1816,7 +1825,7 @@ export default function Editor({
                   return (
                     <div
                       key={experience.id || index}
-                      className={`relative w-full overflow-hidden bg-white border border-stone-200 rounded-lg px-4 pt-2 mb-2 transition-[padding-bottom] duration-200 ease-out ${
+                      className={`relative mb-2 w-full overflow-hidden rounded-lg border border-stone-200 bg-white px-4 pt-2 transition-[padding-bottom] duration-200 ease-out last:mb-0 ${
                         isCardCollapsed ? 'pb-2' : 'pb-4'
                       }`}
                     >
@@ -1833,7 +1842,9 @@ export default function Editor({
                         isCardCollapsed ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
                       }`}>
                         <div className="min-h-0 overflow-hidden">
-                        <div className="text-gray-800 text-[15px] leading-relaxed my-3 break-keep break-words">
+                        <div className={`mt-3 font-serif text-[15px] leading-relaxed text-gray-800 break-keep break-words ${
+                          experience.isPastContext ? 'mb-3' : 'mb-1'
+                        }`}>
                           {experience.description || '관련된 과거 기록이 있습니다.'}
                         </div>
                     
@@ -1854,37 +1865,39 @@ export default function Editor({
                         )} */}
                         
               
-                        {/* 원본 보기 버튼 - 과거 맥락 카드가 아닌 경우에만 표시 */}
-                        {!experience.isPastContext && (
+                        <div className="flex min-w-0 flex-col items-start gap-2">
+                          {/* 원본 보기 버튼 - 과거 맥락 카드가 아닌 경우에만 표시 */}
+                          {!experience.isPastContext && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleViewOriginalEntry(experience.id)
+                              }}
+                              className={VIEW_ORIGINAL_BUTTON_CLASS}
+                              disabled={experienceButtonLoading || bubbleMenuLoading}
+                            >
+                              <span className="min-w-0 truncate text-sm font-medium underline decoration-[#A78BFA] underline-offset-4">
+                                &lt;{experience.title || '무제'}&gt; 보기
+                              </span>
+                              <ExternalLink className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            </button>
+                          )}
+
+                          {/* 이어쓰기 버튼 */}
                           <button
                             type="button"
                             onClick={() => {
-                              handleViewOriginalEntry(experience.id)
+                              handleAddExperience(experience)
                             }}
-                            className={VIEW_ORIGINAL_BUTTON_CLASS}
+                            className={CONTINUE_WRITING_FULL_BUTTON_CLASS}
                             disabled={experienceButtonLoading || bubbleMenuLoading}
                           >
-                            <span className="min-w-0 truncate text-sm font-medium">
-                              &lt;{experience.title || '무제'}&gt; 보기
+                            <PlusIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            <span className="text-sm font-medium">
+                              이어쓰기
                             </span>
-                            <ExternalLink className="ml-2 h-4 w-4 shrink-0" aria-hidden="true" />
                           </button>
-                        )}
-
-                        {/* 이어쓰기 버튼 */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            handleAddExperience(experience)
-                          }}
-                          className={CONTINUE_WRITING_BUTTON_CLASS}
-                          disabled={experienceButtonLoading || bubbleMenuLoading}
-                        >
-                          <span className="text-sm font-medium">
-                            이어쓰기
-                          </span>
-                          <PlusIcon className="ml-2 h-4 w-4 shrink-0" aria-hidden="true" />
-                        </button>
+                        </div>
                         </div>
                       </div>
                     </div>
@@ -1928,16 +1941,17 @@ export default function Editor({
             </CircleIconButton>
                                         {fontMenuOpen && (
                 <div className="absolute right-full top-0 pr-2">
-                  <div className="bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
+                  <div className="z-10 rounded-xl border border-gray-200 bg-white p-2 shadow-lg">
                     <div className="flex flex-col gap-1">
                       {['small', 'normal', 'large', 'huge'].map((size) => (
                         <button
+                          type="button"
                           key={size}
                           onClick={() => {
                             applyFontSize(size)
                             setFontMenuOpen(false)
                         }}
-                          className="px-3 py-1.5 hover:bg-stone-100 transition-colors text-sm font-medium text-gray-700 flex items-center gap-2 rounded"
+                          className="flex min-h-10 items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 transition-[background-color,transform] duration-150 ease-out hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
                         >
                           <span className="font-normal font-sans" style={{ fontSize: size === 'small' ? '0.75rem' : size === 'normal' ? '1rem' : size === 'large' ? '1.25rem' : '1.5rem' }}>T</span>
                           <span className="capitalize">{size}</span>
@@ -1955,16 +1969,17 @@ export default function Editor({
             </CircleIconButton>
             {colorMenuOpen && (
               <div className="absolute right-full top-0 pr-2">
-                <div className="bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
+                <div className="z-10 rounded-xl border border-gray-200 bg-white p-2 shadow-lg">
                   <div className="flex flex-col gap-1">
                     {highlightColors.map((color) => (
                       <button
+                        type="button"
                         key={color.name}
                         onClick={() => {
                           applyHighlightColor(color.name)
                           setColorMenuOpen(false)
                         }}
-                        className="px-3 py-1.5 hover:bg-stone-100 transition-colors text-sm font-medium text-stone-700 flex items-center gap-2 rounded"
+                        className="flex min-h-10 items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-stone-700 transition-[background-color,transform] duration-150 ease-out hover:bg-stone-100 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
                       >
                         <div 
                           className="w-4 h-4 rounded-full" 
@@ -1989,12 +2004,12 @@ export default function Editor({
                 {/* 엔트리 타이틀 */}
                 <TextInput 
                   type='text' 
-                  className='w-full pt-4 text-3xl lg:text-4xl font-extrabold text-center border-none overflow-auto focus:outline-none focus:border-none focus:ring-0 focus:underline focus:underline-offset-4' 
+                  className='w-full overflow-auto !border-0 pt-4 text-center font-serif text-3xl font-extrabold !shadow-none focus:!border-0 focus:!ring-0 focus:!shadow-none focus:underline focus:underline-offset-4 lg:text-4xl'
                   placeholder='제목' 
                   value={title} 
                   onChange={setTitle} 
                 />
-                <div className={`tiptap editor-wrapper w-full h-fit p-6 min-h-[30vh] max-h-[30vh] lg:min-h-[80vh] lg:max-h-none border-none overflow-y-auto lg:overflow-hidden antialiased focus:outline-none transition resize-none placeholder:text-muted ${namum.className} font-sans border-none relative ${(loading || bubbleMenuLoading || experienceButtonLoading) ? 'opacity-60 cursor-wait' : ''}`} style={{marginBottom: '30px' }}>
+                <div className={`tiptap editor-wrapper relative h-fit max-h-[30vh] min-h-[30vh] w-full resize-none overflow-y-auto border-none p-6 antialiased transition-opacity duration-150 placeholder:text-muted focus:outline-none lg:max-h-none lg:min-h-[80vh] lg:overflow-hidden ${(loading || bubbleMenuLoading || experienceButtonLoading) ? 'cursor-wait opacity-60' : ''}`} style={{marginBottom: '30px' }}>
                   <EditorContent editor={editor} />   
                   {/* BubbleMenu - 공식 React 컴포넌트 사용 */}
                   {editor && (
@@ -2030,20 +2045,22 @@ export default function Editor({
                         ) : (
                           <>
                             <button
+                              type="button"
                               onClick={() => {
                                 handleExperienceRecall();
                               }}
-                              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-transparent hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 transition-all duration-300 text-base font-bold text-white hover:text-white hover:shadow-lg"
+                              className="flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-transparent px-3 py-2 text-base font-bold text-white transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 hover:shadow-lg active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
                               title="맞닿은 경험 찾기"
                             >
                               <LoaderIcon className="w-4 h-4" />
                               맞닿은 경험 찾기
                             </button>
                             <button
+                              type="button"
                               onClick={() => {
                                 handleMeaningAugment();
                               }}
-                              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-transparent hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 transition-all duration-300 text-base font-bold text-white hover:text-white hover:shadow-lg"
+                              className="flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-transparent px-3 py-2 text-base font-bold text-white transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-gradient-to-r hover:from-amber-500/30 hover:to-orange-500/30 hover:shadow-lg active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
                               title="관점 확장하기"
                             >
                               <SparkleIcon className="w-4 h-4" />
@@ -2058,7 +2075,7 @@ export default function Editor({
               </div>
             </div>
             {/* 글자수 표시: 흰색 영역 바깥 */}
-            <div className="w-full text-center text-md text-gray-500 mt-2 pr-2 select-none">
+            <div className="mt-2 w-full select-none pr-2 text-center text-md tabular-nums text-gray-500">
               {charCount}자
             </div>
           </div>
@@ -2077,43 +2094,40 @@ export default function Editor({
           </Button> */}
           {/* 증강 옵션 */}
           {(bubbleMenuOptions || augmentOptions) && augmentVisible && (
-            <div id='augment-result' className="bg-[#f5f4ed] border border-stone-300 rounded-lg shadow-md p-3 mb-4 relative">
+            <div id='augment-result' className="relative mb-4 rounded-[20px] border border-stone-300 bg-[#f5f4ed] p-3 shadow-md">
               {/* 로딩 중일 때 오버레이 (자체 로딩만) */}
               {bubbleMenuLoading && (
-                <div className="absolute inset-0 bg-gray-300 bg-opacity-50 rounded-lg z-10 flex items-center justify-center">
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[20px] bg-gray-300 bg-opacity-50">
                   <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
                 </div>
               )}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button 
-                    className={`p-2 hover:bg-stone-200 rounded-lg transition-colors flex items-center justify-center ${(bubbleMenuLoading || experienceButtonLoading) ? 'pointer-events-none' : ''}`}
+                  <button
+                    type="button"
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-[background-color,transform] duration-150 ease-out hover:bg-stone-200 enabled:active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:cursor-not-allowed ${(bubbleMenuLoading || experienceButtonLoading) ? 'pointer-events-none' : ''}`}
                     onClick={() => setAugmentCollapsed(!augmentCollapsed)}
                     title={augmentCollapsed ? "펼치기" : "접기"}
                     disabled={bubbleMenuLoading || experienceButtonLoading}
                   >
-                    {augmentCollapsed ? (
-                      <ChevronDown className="w-4 h-4 text-gray-500" />
-                    ) : (
-                      <ChevronUp className="w-4 h-4 text-gray-500" />
-                    )}
+                    <AnimatedChevron expanded={!augmentCollapsed} />
                   </button>
                   <span className="font-bold text-l text-stone-800">관점 확장하기</span>
                 </div>
                 <button
                   type="button"
                   aria-label="닫기"
-                  className={`w-8 h-8 p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-200 rounded-lg transition-colors flex items-center justify-center ${(bubbleMenuLoading || experienceButtonLoading) ? 'pointer-events-none' : ''}`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg text-stone-400 transition-[background-color,color,transform] duration-150 ease-out hover:bg-stone-200 hover:text-stone-600 enabled:active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:cursor-not-allowed ${(bubbleMenuLoading || experienceButtonLoading) ? 'pointer-events-none' : ''}`}
                   onClick={() => setAugmentVisible(false)}
                   disabled={bubbleMenuLoading || experienceButtonLoading}
                 >
                   <span className="text-lg font-bold">×</span>
                 </button>
               </div>
-              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+              <div className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
                 augmentCollapsed ? 'max-h-0 opacity-0' : 'max-h-[2000px] opacity-100'
               }`}>
-                <div className="text-stone-500 text-sm my-3">
+                <div className="my-3 text-pretty text-sm text-stone-500">
                 어떤 방향으로 생각해 볼까요?<br/>
                 자신의 마음과 각 내용을 비교해 보고, 마음에 드는 것이 있다면 선택해서 생각을 이어 나갈 수 있습니다.
                 </div>
@@ -2124,7 +2138,7 @@ export default function Editor({
                     <button
                       onClick={() => handleMeaningAugment(true)}
                       disabled={bubbleMenuLoading || experienceButtonLoading}
-                      className={`w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#E5E4DD] hover:bg-[#DFDED7] border border-[#DFDED7] hover:border-[#CBCAC3] rounded-md transition-colors duration-200 ${(bubbleMenuLoading || experienceButtonLoading) ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      className={`flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-[#DFDED7] bg-[#E5E4DD] px-3 py-2 transition-[background-color,border-color,transform,opacity] duration-150 ease-out hover:border-[#CBCAC3] hover:bg-[#DFDED7] enabled:active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:cursor-not-allowed ${(bubbleMenuLoading || experienceButtonLoading) ? 'opacity-60' : ''}`}
                     >
                       <RefreshCw className={`w-4 h-4 text-stone-500`} />
                       <span className="text-sm font-medium text-stone-900">
@@ -2151,7 +2165,7 @@ export default function Editor({
                     return (
                       <div
                         key={option.index}
-                        className={`relative w-full overflow-hidden bg-white border border-stone-300 rounded-lg px-4 pt-2 mb-2 transition-[padding-bottom] duration-200 ease-out ${
+                        className={`relative mb-2 w-full overflow-hidden rounded-lg border border-stone-300 bg-white px-4 pt-2 transition-[padding-bottom] duration-200 ease-out last:mb-0 ${
                           isCardCollapsed ? 'pb-2' : 'pb-4'
                         }`}
                       >
@@ -2173,27 +2187,29 @@ export default function Editor({
                               {option.strategy}
                             </div>
                           )} */}
-                          <div className="text-gray-800 text-[15px] leading-relaxed my-3 break-keep break-words">
+                          <div className="font-serif text-gray-800 text-[15px] leading-relaxed my-3 break-keep break-words">
                             {option.text}
                           </div>
                           
-                          {/* 이어쓰기 버튼 */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              applyAugmentation(option.text, {
-                                ...option,
-                                type: 'generation', // 액션 타입 추가
-                              })
-                            }}
-                            className={CONTINUE_WRITING_BUTTON_CLASS}
-                            disabled={experienceButtonLoading || bubbleMenuLoading}
-                          >
-                            <span className="text-sm font-medium">
-                              이어쓰기
-                            </span>
-                            <PlusIcon className="ml-2 h-4 w-4 shrink-0" aria-hidden="true" />
-                          </button>
+                          <div className="mt-3 flex justify-end">
+                            {/* 이어쓰기 버튼 */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                applyAugmentation(option.text, {
+                                  ...option,
+                                  type: 'generation', // 액션 타입 추가
+                                })
+                              }}
+                              className={CONTINUE_WRITING_FULL_BUTTON_CLASS}
+                              disabled={experienceButtonLoading || bubbleMenuLoading}
+                            >
+                              <PlusIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                              <span className="text-sm font-medium">
+                                이어쓰기
+                              </span>
+                            </button>
+                          </div>
                           </div>
                         </div>
                       </div>
@@ -2218,7 +2234,7 @@ export default function Editor({
               </div>
               <div className="p-3 space-y-2">
                 {augments.map((a, i) => (
-                  <div key={i} className="bg-gray-50 border border-gray-200 rounded-md p-3 hover:bg-white transition-colors duration-150">
+                  <div key={i} className="rounded-md border border-gray-200 bg-gray-50 p-3 transition-colors duration-150 hover:bg-white">
                     <div className="flex items-start gap-2">
                       <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-medium">
                         {i + 1}

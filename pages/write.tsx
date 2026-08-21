@@ -522,10 +522,10 @@ export default function Write() {
           <div className="flex items-center justify-center space-x-3">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-600"></div>
             <div className="text-center">
-              <p className="text-sm text-amber-800 font-medium">
+              <p className="text-pretty text-sm text-amber-800 font-medium">
                 일기를 저장하고 있습니다...
               </p>
-              <p className="text-xs text-amber-700">
+              <p className="text-pretty text-xs text-amber-700">
                 완료될 때까지 창을 닫지 말아주세요!
               </p>
             </div>
@@ -537,8 +537,9 @@ export default function Write() {
       <header className="bg-transparent px-6 py-4 flex-shrink-0">
         <div className="bg-transparent flex items-center justify-between">
           <button
+            type="button"
             onClick={handleBack}
-            className={`flex items-center ${isSubmitting ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-900'}`}
+            className={`flex min-h-10 items-center rounded-lg px-2 transition-[background-color,color,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf9f5] ${isSubmitting ? 'cursor-not-allowed text-gray-400' : 'text-gray-600 hover:bg-black/[0.04] hover:text-gray-900 active:scale-[0.96]'}`}
             disabled={isSubmitting}
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />

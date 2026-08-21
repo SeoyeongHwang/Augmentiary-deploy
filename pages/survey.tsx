@@ -217,7 +217,7 @@ export default function SurveyPage() {
     
     return (
       <div className="bg-white rounded-2xl p-6 shadow-soft border border-gray-200 mb-4">
-        <label className="block text-base font-medium text-gray-800 mb-6 leading-relaxed">
+        <label className="block text-pretty text-base font-medium text-gray-800 mb-6 leading-relaxed">
           {label} <span className="text-red-500">*</span>
         </label>
         <div className="flex items-center justify-between">
@@ -231,7 +231,7 @@ export default function SurveyPage() {
                   value={num}
                   checked={value === num}
                   onChange={() => handleInputChange(field, num)}
-                  className="mb-3 w-5 h-5 text-gray-600 border-2 border-gray-300 focus:ring-gray-500 focus:ring-2 transition-all duration-200"
+                  className="mb-3 h-5 w-5 border-2 border-gray-300 text-gray-600 transition-[background-color,border-color,box-shadow] duration-200 focus:ring-2 focus:ring-gray-500"
                 />
                 <span className={`text-sm font-medium transition-colors duration-200 ${
                   value === num ? 'text-gray-800' : 'text-gray-400 group-hover:text-gray-600'
@@ -254,7 +254,7 @@ export default function SurveyPage() {
     return (
       <div className="space-y-3">
         {options.map(option => (
-          <label key={option} className="flex items-center p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 cursor-pointer transition-all duration-200">
+          <label key={option} className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-3 transition-[background-color,border-color] duration-200 hover:border-gray-300 hover:bg-gray-50">
             <input
               type="radio"
               name={field}
@@ -309,7 +309,7 @@ export default function SurveyPage() {
         {/* 헤더 */}
         <Section className="text-center mb-8">
           <Heading level={1} className="mb-4">프로필 설문</Heading>
-          <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="mx-auto max-w-2xl text-pretty leading-relaxed text-gray-600">
             더 나은 일기 작성 경험을 위해 몇 가지 질문에 답해주세요.<br />
             모든 정보는 개인화된 서비스 제공을 위해서만 사용됩니다.
           </p>
@@ -320,7 +320,7 @@ export default function SurveyPage() {
           <Section>
             <div className="border-b border-gray-200 pb-4 mb-6">
               <Heading level={2} className="mb-2">기본정보</Heading>
-              <p className="text-gray-600 text-base">기본적인 인적사항을 알려주세요.</p>
+              <p className="text-pretty text-base text-gray-600">기본적인 인적사항을 알려주세요.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -417,7 +417,7 @@ export default function SurveyPage() {
           <Section>
             <div className="border-b border-gray-200 pb-4 mb-6">
               <Heading level={2} className="mb-2">자기 인식</Heading>
-              <p className="text-gray-600 text-base">
+              <p className="text-pretty text-base text-gray-600">
                 다음 문항들을 읽고 자신의 생각과 가장 가까운 답을 선택해주세요.
               </p>
             </div>
@@ -440,7 +440,7 @@ export default function SurveyPage() {
           <Section>
             <div className="border-b border-gray-200 pb-4 mb-6">
               <Heading level={2} className="mb-2">가치관</Heading>
-              <p className="text-gray-600 text-base mb-4">
+              <p className="mb-4 text-pretty text-base text-gray-600">
                 다음은 여러 사람들에 대한 간단한 설명입니다. 각 설명을 읽고, 그 사람이 당신과 얼마나 비슷한지 평가해주세요.
               </p>
             </div>
@@ -463,7 +463,7 @@ export default function SurveyPage() {
           <Section>
             <div className="border-b border-gray-200 pb-4 mb-6">
               <Heading level={2} className="mb-2">삶의 맥락</Heading>
-              <p className="text-gray-600 text-base">
+              <p className="text-pretty text-base text-gray-600">
                 자신의 삶에 대해 간단히 소개해주세요. 각 질문에 대해 자유롭게 작성해주시면 됩니다.
               </p>
             </div>
@@ -474,7 +474,7 @@ export default function SurveyPage() {
                 <label className="block text-base font-bold text-gray-700 mb-2">
                   과거 경험을 통해 현재의 나를 소개해주세요 <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500 mb-3">
+                <p className="mb-3 text-pretty text-sm text-gray-500">
                   현재의 나를 만든 인상 깊었던 사건들, 좋아하는 것, 싫어하는 것 등을 자유롭게 작성해주세요.
                 </p>
                 <div className="relative">
@@ -483,9 +483,9 @@ export default function SurveyPage() {
                     onChange={(value) => handleInputChange('pastEvents', value)}
                     placeholder="과거 경험과 그것이 현재의 나에게 미친 영향에 대해 써주세요."
                     rows={6}
-                    className="w-full transition-all duration-200 focus:ring-2 focus:ring-gray-400 focus:border-gray-400 hover:border-gray-300 border-gray-200"
+                    className="w-full border-gray-200 transition-[background-color,border-color,box-shadow] duration-200 hover:border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-400"
                   />
-                  <div className={`absolute bottom-3 right-3 text-xs transition-colors duration-200 ${
+                  <div className={`absolute bottom-3 right-3 text-xs tabular-nums transition-colors duration-200 ${
                     surveyData.pastEvents.length > 0 ? 'text-gray-500' : 'text-gray-400'
                   }`}>
                     {surveyData.pastEvents.length}자
@@ -498,7 +498,7 @@ export default function SurveyPage() {
                 <label className="block text-base font-bold text-gray-700 mb-2">
                   현재 어떻게 살아가고 있나요? <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500 mb-3">
+                <p className="mb-3 text-pretty text-sm text-gray-500">
                   일상생활, 주요 관심사, 현재 고민하고 있는 것들에 대해 알려주세요.
                 </p>
                 <div className="relative">
@@ -507,9 +507,9 @@ export default function SurveyPage() {
                     onChange={(value) => handleInputChange('currentLife', value)}
                     placeholder="현재의 일상과 관심사, 고민거리에 대해 써주세요."
                     rows={6}
-                    className="w-full transition-all duration-200 focus:ring-2 focus:ring-gray-400 focus:border-gray-400 hover:border-gray-300 border-gray-200"
+                    className="w-full border-gray-200 transition-[background-color,border-color,box-shadow] duration-200 hover:border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-400"
                   />
-                  <div className={`absolute bottom-3 right-3 text-xs transition-colors duration-200 ${
+                  <div className={`absolute bottom-3 right-3 text-xs tabular-nums transition-colors duration-200 ${
                     surveyData.currentLife.length > 0 ? 'text-gray-500' : 'text-gray-400'
                   }`}>
                     {surveyData.currentLife.length}자
@@ -522,7 +522,7 @@ export default function SurveyPage() {
                 <label className="block text-base font-bold text-gray-700 mb-2">
                   앞으로 어떤 사람이 되고 싶나요? <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500 mb-3">
+                <p className="mb-3 text-pretty text-sm text-gray-500">
                   미래의 목표, 꿈, 되고 싶은 모습에 대해 자유롭게 작성해주세요.
                 </p>
                 <div className="relative">
@@ -531,9 +531,9 @@ export default function SurveyPage() {
                     onChange={(value) => handleInputChange('futureGoals', value)}
                     placeholder="미래의 목표와 꿈에 대해 써주세요."
                     rows={6}
-                    className="w-full transition-all duration-200 focus:ring-2 focus:ring-gray-400 focus:border-gray-400 hover:border-gray-300 border-gray-200"
+                    className="w-full border-gray-200 transition-[background-color,border-color,box-shadow] duration-200 hover:border-gray-300 focus:border-gray-400 focus:ring-2 focus:ring-gray-400"
                   />
-                  <div className={`absolute bottom-3 right-3 text-xs transition-colors duration-200 ${
+                  <div className={`absolute bottom-3 right-3 text-xs tabular-nums transition-colors duration-200 ${
                     surveyData.futureGoals.length > 0 ? 'text-gray-500' : 'text-gray-400'
                   }`}>
                     {surveyData.futureGoals.length}자
@@ -554,7 +554,7 @@ export default function SurveyPage() {
             {isSubmitting ? '프로필 생성 중...' : '프로필 생성하기'}
           </Button>
           
-          <p className="text-sm text-gray-500 mt-4 max-w-2xl mx-auto">
+          <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm text-gray-500">
             <span className="text-red-500">*</span> 표시된 항목은 필수입니다. 
             입력하신 모든 정보는 안전하게 보호되며,<br />개인화된 일기 작성 도움을 위해서만 사용됩니다.
           </p>
