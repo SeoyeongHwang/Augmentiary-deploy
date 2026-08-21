@@ -52,6 +52,13 @@ const LEADING_EMOJI_PATTERN = new RegExp(
   'u'
 )
 
+const SUGGESTION_ACTION_BUTTON_CLASS =
+  'mt-2 flex min-h-10 w-full items-center justify-between rounded-md py-2 pl-3 pr-2.5 text-left transition-[background-color,box-shadow,transform,opacity] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-50'
+
+const VIEW_ORIGINAL_BUTTON_CLASS = `${SUGGESTION_ACTION_BUTTON_CLASS} bg-white text-[#6B4B7A] shadow-[inset_0_0_0_1px_rgba(107,75,122,0.18)] enabled:hover:bg-[#F3EEF6] enabled:hover:shadow-[inset_0_0_0_1px_rgba(107,75,122,0.26)] enabled:active:scale-[0.96] focus-visible:ring-[#6B4B7A]`
+
+const CONTINUE_WRITING_BUTTON_CLASS = `${SUGGESTION_ACTION_BUTTON_CLASS} bg-[#E7F5EB] text-[#1F6B3A] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)] enabled:hover:bg-[#D8EFDF] enabled:hover:shadow-[inset_0_0_0_1px_rgba(31,107,58,0.2)] enabled:active:scale-[0.96] focus-visible:ring-[#2F824B]`
+
 // 제안 카드 제목: 이모지를 불렛처럼 분리해, 제목이 두 줄 이상으로 줄바꿈되어도
 // 텍스트가 이모지 아래로 침범하지 않고 자체 영역 안에서만 줄바꿈되도록 렌더링
 function SuggestionTitle({ title }: { title: string }) {
@@ -1850,31 +1857,33 @@ export default function Editor({
                         {/* 원본 보기 버튼 - 과거 맥락 카드가 아닌 경우에만 표시 */}
                         {!experience.isPastContext && (
                           <button
+                            type="button"
                             onClick={() => {
                               handleViewOriginalEntry(experience.id)
                             }}
-                            className={`w-full flex items-center justify-between px-3 py-2 mt-2 bg-purple-100 hover:bg-purple-200 border border-purple-300 hover:border-purple-400 rounded-md transition-colors duration-200 ${(experienceButtonLoading || bubbleMenuLoading) ? 'pointer-events-none' : ''}`}
+                            className={VIEW_ORIGINAL_BUTTON_CLASS}
                             disabled={experienceButtonLoading || bubbleMenuLoading}
                           >
-                            <span className="text-sm font-semibold text-purple-700 truncate">
+                            <span className="min-w-0 truncate text-sm font-medium">
                               &lt;{experience.title || '무제'}&gt; 보기
                             </span>
-                            <ExternalLink className="w-4 h-4 text-purple-700 ml-2" />
+                            <ExternalLink className="ml-2 h-4 w-4 shrink-0" aria-hidden="true" />
                           </button>
                         )}
 
                         {/* 이어쓰기 버튼 */}
                         <button
+                          type="button"
                           onClick={() => {
                             handleAddExperience(experience)
                           }}
-                          className={`w-full flex items-center justify-between px-3 py-2 mt-2 bg-green-100 hover:bg-green-200 border border-green-300 hover:border-green-400 rounded-md transition-colors duration-200 ${(experienceButtonLoading || bubbleMenuLoading) ? 'pointer-events-none' : ''}`}
+                          className={CONTINUE_WRITING_BUTTON_CLASS}
                           disabled={experienceButtonLoading || bubbleMenuLoading}
                         >
-                          <span className="text-sm font-semibold text-green-700">
+                          <span className="text-sm font-medium">
                             이어쓰기
                           </span>
-                          <PlusIcon className="w-4 h-4 text-green-700 ml-2" />
+                          <PlusIcon className="ml-2 h-4 w-4 shrink-0" aria-hidden="true" />
                         </button>
                         </div>
                       </div>
@@ -2170,19 +2179,20 @@ export default function Editor({
                           
                           {/* 이어쓰기 버튼 */}
                           <button
+                            type="button"
                             onClick={() => {
                               applyAugmentation(option.text, {
                                 ...option,
                                 type: 'generation', // 액션 타입 추가
                               })
                             }}
-                            className={`w-full flex items-center justify-between px-3 py-2 mt-2 bg-green-100 hover:bg-green-200 border border-green-300 hover:border-green-400 rounded-md transition-colors duration-200 ${(experienceButtonLoading || bubbleMenuLoading) ? 'pointer-events-none' : ''}`}
+                            className={CONTINUE_WRITING_BUTTON_CLASS}
                             disabled={experienceButtonLoading || bubbleMenuLoading}
                           >
-                            <span className="text-sm font-semibold text-green-700">
+                            <span className="text-sm font-medium">
                               이어쓰기
                             </span>
-                            <PlusIcon className="w-4 h-4 text-green-700 ml-2" />
+                            <PlusIcon className="ml-2 h-4 w-4 shrink-0" aria-hidden="true" />
                           </button>
                           </div>
                         </div>
